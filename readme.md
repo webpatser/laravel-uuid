@@ -39,4 +39,4 @@ Generate a version 5 UUID
 
 Full details on the UUID specification can be found [here](http://tools.ietf.org/html/rfc4122)
 
-If used on windows it will use the [CAPICOM getRandom method](http://msdn.microsoft.com/en-us/library/aa388182(VS.85).aspx)
+If used on windows it will use the [CAPICOM getRandom method]('http://msdn.microsoft.com/en-us/library/aa388182(VS.85).aspx')
