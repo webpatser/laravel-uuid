@@ -112,7 +112,7 @@ class Uuid
     protected function __construct ($uuid)
     {
         if (strlen($uuid) != 16) {
-            throw new Exception('Input must be a 128-bit integer.');
+            throw new \Exception('Input must be a 128-bit integer.');
         }
  
         $this->bytes = $uuid;
@@ -142,7 +142,7 @@ class Uuid
                 return new self( self::mintTime( $node ) );
             case 2:
                 // Version 2 is not supported
-                throw new Exception( 'Version 2 is unsupported.' );
+                throw new \Exception( 'Version 2 is unsupported.' );
             case 3:
                 return new self( self::mintName( self::MD5, $node, $ns ) );
             case 4:
@@ -150,7 +150,7 @@ class Uuid
             case 5:
                 return new self( self::mintName( self::SHA1, $node, $ns ) );
             default:
-                throw new Exception( 'Selected version is invalid or unsupported.' );
+                throw new \Exception( 'Selected version is invalid or unsupported.' );
         }
     }
  
@@ -326,13 +326,13 @@ class Uuid
     protected static function mintName ($ver, $node, $ns)
     {
         if (! $node) {
-            throw new Exception('A name-string is required for Version 3 or 5 UUIDs.');
+            throw new \Exception('A name-string is required for Version 3 or 5 UUIDs.');
         }
  
         // if the namespace UUID isn't binary, make it so
         $ns = self::makeBin($ns, 16);
         if (! $ns) {
-            throw new Exception('A binary namespace is required for Version 3 or 5 UUIDs.');
+            throw new \Exception('A binary namespace is required for Version 3 or 5 UUIDs.');
         }
  
         switch ($ver) {
@@ -395,8 +395,8 @@ class Uuid
                 try {
                     self::$randomSource = new COM('CAPICOM.Utilities.1');
                     self::$randomFunc = 'randomCOM';
-                } catch (Exception $e) {
-                    throw new Exception ('Cannot initialize windows random generator');
+                } catch (\Exception $e) {
+                    throw new \Exception ('Cannot initialize windows random generator');
                 }
             }
         return self::$randomFunc;
