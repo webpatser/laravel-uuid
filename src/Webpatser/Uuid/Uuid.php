@@ -131,7 +131,7 @@ class Uuid
      * @param int $ver
      * @param unknown_type $node
      * @param unknown_type $ns
-     * @return Webpatser\Uuid
+     * @return Uuid
      * @throws Exception
      */
     public static function generate ($ver = 1, $node = NULL, $ns = NULL)
@@ -302,7 +302,7 @@ class Uuid
      * These are derived soly from random numbers.
      * generate random fields
      *
-     * @return unknown
+     * @return Uuid
      */
     protected static function mintRand ()
     {
@@ -320,8 +320,8 @@ class Uuid
      * @param unknown_type $ver
      * @param unknown_type $node
      * @param unknown_type $ns
-     * @return unknown
-     * @throws /Zend/Uuid/Exception
+     * @return Uuid
+     * @throws Exception
      */
     protected static function mintName ($ver, $node, $ns)
     {
