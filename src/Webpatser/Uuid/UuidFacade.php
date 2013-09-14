@@ -15,6 +15,8 @@ class UuidFacade extends Facade {
      *
      * @return string
      */
-    protected static function getFacadeAccessor() { return 'uuid'; }
+    protected static function getFacadeAccessor() {
+        return 'uuid';
+    }
  
 }
