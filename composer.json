@@ -1,7 +1,6 @@
 {
 	"name" : "webpatser/laravel-uuid",
 	"description" : "Laravel package to generate a UUID according to the RFC 4122 standard. Only support for version 1, 3, 4 and 5 UUID are built-in.",
-	"version" : "1.0",
 	"type" : "laravel-library",
 	"authors" : [{
 			"name" : "Christoph Kempen",
