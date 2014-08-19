@@ -138,16 +138,16 @@ class Uuid
         /* Create a new UUID based on provided data. */
         switch ((int) $ver) {
             case 1:
-                return new self( self::mintTime( $node ) );
+                return new static( self::mintTime( $node ) );
             case 2:
                 // Version 2 is not supported
                 throw new \Exception( 'Version 2 is unsupported.' );
             case 3:
-                return new self( self::mintName( self::MD5, $node, $ns ) );
+                return new static( self::mintName( self::MD5, $node, $ns ) );
             case 4:
-                return new self( self::mintRand() );
+                return new static( self::mintRand() );
             case 5:
-                return new self( self::mintName( self::SHA1, $node, $ns ) );
+                return new static( self::mintName( self::SHA1, $node, $ns ) );
             default:
                 throw new \Exception( 'Selected version is invalid or unsupported.' );
         }
@@ -161,7 +161,7 @@ class Uuid
      */
     public static function import ($uuid)
     {
-        return new self(self::makeBin($uuid, 16));
+        return new static(self::makeBin($uuid, 16));
     }
  
     /**
