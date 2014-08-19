@@ -107,7 +107,7 @@ class Uuid
  
     /**
      * @param string $uuid
-     * @throws Exception
+     * @throws \Exception
      */
     protected function __construct ($uuid)
     {
@@ -126,13 +126,12 @@ class Uuid
             substr($uuid, 10, 6));
     }
  
- 
     /**
      * @param int $ver
-     * @param unknown_type $node
-     * @param unknown_type $ns
+     * @param string|null $node
+     * @param string|null $ns
      * @return Uuid
-     * @throws Exception
+     * @throws \Exception
      */
     public static function generate ($ver = 1, $node = NULL, $ns = NULL)
     {
@@ -172,7 +171,7 @@ class Uuid
      *
      * @param string $a
      * @param string $b
-     * @return string|string
+     * @return bool
      */
     public static function compare ($a, $b)
     {
@@ -186,16 +185,16 @@ class Uuid
  
     /**
      * Echo the uuid
+     * @return string
      */
     public function __toString ()
     {
         return $this->string;
     }
- 
- 
+
     /**
      * @param string $var
-     * @return string|string|number|number|number|number|number|NULL|number|NULL|NULL
+     * @return int|string|null
      */
     public function __get ($var)
     {
@@ -247,8 +246,8 @@ class Uuid
      * Generates a Version 1 UUID.
      * These are derived from the time at which they were generated.
      *
-     * @param unknown_type $node
-     * @return unknown
+     * @param string|null $node
+     * @return string
      */
     protected static function mintTime ($node = NULL)
     {
@@ -297,12 +296,13 @@ class Uuid
         $uuid .= $node;
         return $uuid;
     }
+
     /**
      * Generate a Version 4 UUID.
      * These are derived soly from random numbers.
      * generate random fields
      *
-     * @return Uuid
+     * @return string
      */
     protected static function mintRand ()
     {
@@ -313,15 +313,17 @@ class Uuid
         $uuid[6] = chr(ord($uuid[6]) & self::clearVer | self::version4);
         return $uuid;
     }
+
     /**
      * Generates a Version 3 or Version 5 UUID.
      * These are derived from a hash of a name and its namespace, in binary form.
      *
-     * @param unknown_type $ver
-     * @param unknown_type $node
-     * @param unknown_type $ns
-     * @return Uuid
-     * @throws Exception
+     * @param int $ver
+     * @param string $node
+     * @param string $ns
+     *
+     * @return string
+     * @throws \Exception
      */
     protected static function mintName ($ver, $node, $ns)
     {
@@ -353,13 +355,14 @@ class Uuid
         $uuid[6] = chr( ord($uuid[6]) & self::clearVer | $version);
         return ($uuid);
     }
+
     /**
      * Insure that an input string is either binary or hexadecimal.
      * Returns binary representation, or false on failure.
      *
-     * @param unknown_type $str
-     * @param unknown_type $len
-     * @return Uuid|string
+     * @param string $str
+     * @param int $len
+     * @return bool|string
      */
     protected static function makeBin ($str, $len)
     {
@@ -379,10 +382,13 @@ class Uuid
             return pack("H*", $str);
         }
     }
- 
+
     /**
      * Look for a system-provided source of randomness, which is usually crytographically secure.
      * /dev/urandom is tried first simply out of bias for Linux systems.
+     *
+     * @throws \Exception
+     * @return string
      */
     public static function initRandom ()
     {
@@ -401,16 +407,21 @@ class Uuid
             }
         return self::$randomFunc;
     }
- 
+
+    /**
+     * @param int $bytes
+     * @return string
+     */
     public static function randomBytes ($bytes)
     {
         return call_user_func(array('self', self::$randomFunc), $bytes);
     }
+
     /**
      * Get the specified number of random bytes, using mt_rand().
      * Randomness is returned as a string of bytes.
      *
-     * @param unknown_type $bytes
+     * @param int $bytes
      * @return string
      */
     protected static function randomTwister ($bytes)
@@ -427,12 +438,14 @@ class Uuid
      * previously opened with UUID::initRandom().
      * Randomness is returned as a string of bytes.
      *
-     * @param unknown_type $bytes
+     * @param int $bytes
+     * @return string
      */
     protected static function randomFRead ($bytes)
     {
         return fread(self::$randomSource, $bytes);
     }
+
     /**
      * Get the specified number of random bytes using Windows'
      * randomness source via a COM object previously created by UUID::initRandom().
@@ -440,7 +453,8 @@ class Uuid
      *
      * Straight binary mysteriously doesn't work, hence the base64
      *
-     * @param unknown_type $bytes
+     * @param int $bytes
+     * @return string
      */
     protected static function randomCOM ($bytes)
     {
