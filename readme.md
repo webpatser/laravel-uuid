@@ -14,7 +14,7 @@ Add `webpatser/laravel-uuid` to `composer.json`.
 
     "webpatser/laravel-uuid": "dev-master"
     
-Run `composer update` to pull down the latest version of Country List.
+Run `composer update` to pull down the latest version of Laravel UUID.
 
 Edit `app/config/app.php` and add the `alias`
 
@@ -41,7 +41,7 @@ Generate a version 1, time-based, UUID. You can set the optional node to the MAC
 	
 Generate a version 3, name-based using MD5 hashing, UUID
 
-	Uuid::generate(3,'test','6ba7b810-9dad-11d1-80b4-00c04fd430c8');
+	Uuid::generate(3,'test', Uuid::nsDNS);
 	
 Generate a version 4, truly random, UUID
 
@@ -49,7 +49,7 @@ Generate a version 4, truly random, UUID
 
 Generate a version 5, name-based using SHA-1 hashing, UUID
 
-	Uuid::generate(5,'test','6ba7b810-9dad-11d1-80b4-00c04fd430c8');
+	Uuid::generate(5,'test', Uuid::nsDNS);
 	
 ### Some magic features
 
