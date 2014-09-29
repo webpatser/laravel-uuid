@@ -12,7 +12,7 @@ Laravel package to generate a UUID according to the RFC 4122 standard. Only supp
 
 Add `webpatser/laravel-uuid` to `composer.json`.
 
-    "webpatser/laravel-uuid": "dev-master"
+    "webpatser/laravel-uuid": "1.*"
     
 Run `composer update` to pull down the latest version of Laravel UUID.
 
