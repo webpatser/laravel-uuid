@@ -136,18 +136,62 @@ class Uuid
     public static function generate ($ver = 1, $node = NULL, $ns = NULL)
     {
         /* Create a new UUID based on provided data. */
+        /* pecl::uuid fix from http://rommelsantor.com/clog/2012/02/23/generate-uuid-in-php/ */
         switch ((int) $ver) {
             case 1:
-                return new static( self::mintTime( $node ) );
+                if (function_exists('uuid_create')) {
+                    $context = $uuid = null;
+                    uuid_create($context);
+                    uuid_make($context, UUID_MAKE_V1);
+                    uuid_export($context, UUID_FMT_STR, $uuid);
+                    return trim($uuid);
+                } else {
+                    return new static(self::mintTime($node));
+                }
             case 2:
                 // Version 2 is not supported
                 throw new \Exception( 'Version 2 is unsupported.' );
             case 3:
-                return new static( self::mintName( self::MD5, $node, $ns ) );
+                if (function_exists('uuid_create')) {
+                    if (!strlen($node))
+                        $node = self::generate(1);
+
+                    $context = $namespace = $uuid = null;
+                    uuid_create($context);
+                    uuid_create($namespace);
+
+                    uuid_make($context, UUID_MAKE_V3, $namespace, $node);
+                    uuid_export($context, UUID_FMT_STR, $uuid);
+                    return trim($uuid);
+                } else {
+                    return new static(self::mintName(self::MD5, $node, $ns));
+                }
             case 4:
-                return new static( self::mintRand() );
+                if (function_exists('uuid_create')) {
+                    $context = $uuid = null;
+                    uuid_create($context);
+
+                    uuid_make($context, UUID_MAKE_V4);
+                    uuid_export($context, UUID_FMT_STR, $uuid);
+                    return trim($uuid);
+                } else {
+                    return new static(self::mintRand());
+                }
             case 5:
-                return new static( self::mintName( self::SHA1, $node, $ns ) );
+                if (function_exists('uuid_create')) {
+                    if (!strlen($node))
+                        $node = self::generate(1);
+
+                    $context = $namespace = $uuid = null;
+                    uuid_create($context);
+                    uuid_create($namespace);
+
+                    uuid_make($context, UUID_MAKE_V5, $namespace, $node);
+                    uuid_export($context, UUID_FMT_STR, $uuid);
+                    return trim($uuid);
+                } else {
+                    return new static(self::mintName(self::SHA1, $node, $ns));
+                }
             default:
                 throw new \Exception( 'Selected version is invalid or unsupported.' );
         }
