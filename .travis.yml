@@ -9,6 +9,6 @@ php:
 
 before_script:
   - curl -s http://getcomposer.org/installer | php
-  - php composer.phar install --require-dev
+  - php composer.phar install --dev
 
 script: vendor/bin/phpunit --coverage-text
