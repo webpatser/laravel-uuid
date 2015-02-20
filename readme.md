@@ -1,6 +1,7 @@
 # Laravel Uuid
 
 [![Total Downloads](https://poser.pugx.org/webpatser/laravel-uuid/downloads.svg)](https://packagist.org/packages/webpatser/laravel-uuid)
+[![Build Status](https://secure.travis-ci.org/webpatser/laravel-uuid.png?branch=master)](http://travis-ci.org/webpatser/laravel-uuid)
 [![Latest Stable Version](https://poser.pugx.org/webpatser/laravel-uuid/v/stable.svg)](https://packagist.org/packages/webpatser/laravel-uuid)
 [![Latest Unstable Version](https://poser.pugx.org/webpatser/laravel-uuid/v/unstable.svg)](https://packagist.org/packages/webpatser/laravel-uuid)
 
