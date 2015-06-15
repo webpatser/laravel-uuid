@@ -415,14 +415,19 @@ class Uuid
         switch ($var) {
             case "bytes":
                 return $this->bytes;
+                break;
             case "hex":
                 return bin2hex($this->bytes);
+                break;
             case "string":
                 return $this->__toString();
+                break;
             case "urn":
                 return "urn:uuid:" . $this->__toString();
+                break;
             case "version":
                 return ord($this->bytes[6]) >> 4;
+                break;
             case "variant":
                 $byte = ord($this->bytes[8]);
                 if ($byte >= static::varRes) {
@@ -434,12 +439,14 @@ class Uuid
                 } else {
                     return 0;
                 }
+                break;
             case "node":
                 if (ord($this->bytes[6]) >> 4 == 1) {
                     return bin2hex(substr($this->bytes, 10));
                 } else {
                     return null;
                 }
+                break;
             case "time":
                 if (ord($this->bytes[6]) >> 4 == 1) {
                     // Restore contiguous big-endian byte order
@@ -452,8 +459,10 @@ class Uuid
                 } else {
                     return null;
                 }
+                break;
             default:
                 return null;
+                break;
         }
     }
 
