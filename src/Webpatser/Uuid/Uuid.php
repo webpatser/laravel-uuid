@@ -218,9 +218,15 @@ class Uuid
         return $uuid;
     }
 
+    /**
+     * Randomness is returned as a string of bytes
+     *
+     * @param $bytes
+     * @return string
+     */
     public static function randomBytes($bytes)
     {
-        return call_user_func(['self', self::$randomFunc], $bytes);
+        return call_user_func(['static', static::$randomFunc], $bytes);
     }
 
     /**
@@ -333,7 +339,6 @@ class Uuid
      */
     public static function compare($a, $b)
     {
-        /*  */
         if (self::makeBin($a, 16) == self::makeBin($b, 16)) {
             return true;
         } else {

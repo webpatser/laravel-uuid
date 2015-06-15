@@ -4,18 +4,36 @@ use Webpatser\Uuid\Uuid;
 
 class UuidTest extends PHPUnit_Framework_TestCase {
 
+    const uuidRegex = '/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/';
+
     public function testStaticGeneration()
     {
-        // Arrange
         $uuid = Uuid::generate(1);
+        $this->assertInstanceOf('Webpatser\Uuid\Uuid', $uuid);
+
+        $uuid = Uuid::generate(3, 'test', Uuid::nsDNS);
+        $this->assertInstanceOf('Webpatser\Uuid\Uuid', $uuid);
+
+        $uuid = Uuid::generate(4);
+        $this->assertInstanceOf('Webpatser\Uuid\Uuid', $uuid);
+
+        $uuid = Uuid::generate(5, 'test', Uuid::nsDNS);
         $this->assertInstanceOf('Webpatser\Uuid\Uuid', $uuid);
     }
 
-    public function testGenerationOfVersionOne()
+    public function testGenerationOfValidUuids()
     {
-        // Arrange
         $uuid = Uuid::generate(1);
-        $this->assertRegExp('/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/', (string) $uuid);
+        $this->assertRegExp(self::uuidRegex, (string) $uuid);
+
+        $uuid = Uuid::generate(3, 'test', Uuid::nsDNS);
+        $this->assertRegExp(self::uuidRegex, (string) $uuid);
+
+        $uuid = Uuid::generate(4);
+        $this->assertRegExp(self::uuidRegex, (string) $uuid);
+
+        $uuid = Uuid::generate(5, 'test', Uuid::nsDNS);
+        $this->assertRegExp(self::uuidRegex, (string) $uuid);
     }
 
     public function testCorrectVersionUuid()
@@ -69,6 +87,14 @@ class UuidTest extends PHPUnit_Framework_TestCase {
         $uuidFive = Uuid::generate(5,'test', Uuid::nsDNS);;
         $importedFive = Uuid::import((string) $uuidFive);
         $this->assertEmpty($importedFive->time);
+    }
 
+    public function testUuidCompare()
+    {
+        $uuid1 = (string) Uuid::generate(1);
+        $uuid2 = (string) Uuid::generate(1);
+
+        $this->assertTrue(Uuid::compare($uuid1, $uuid1));
+        $this->assertFalse(Uuid::compare($uuid1, $uuid2));
     }
 }
