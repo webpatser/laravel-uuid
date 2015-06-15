@@ -418,7 +418,7 @@ class Uuid
             // no break
             case "hex":
                 return bin2hex($this->bytes);
-                break;
+            // no break
             case "string":
                 return $this->__toString();
             // no break
