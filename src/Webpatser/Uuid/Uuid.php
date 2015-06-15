@@ -12,87 +12,87 @@ class Uuid
      * 00001111  Clears all bits of version byte with AND
      * @var int
      */
-    const clearVer = 15;
+    const CLEAR_VER = 15;
 
     /**
      * 00111111  Clears all relevant bits of variant byte with AND
      * @var int
      */
-    const clearVar = 63;
+    const CLEAR_VAR = 63;
 
     /**
      * 11100000  Variant reserved for future use
      * @var int
      */
-    const varRes = 224;
+    const VAR_RES = 224;
 
     /**
      * 11000000  Microsoft UUID variant
      * @var int
      */
-    const varMS = 192;
+    const VAR_MS = 192;
 
     /**
      * 10000000  The RFC 4122 variant (this variant)
      * @var int
      */
-    const varRFC = 128;
+    const VAR_RFC = 128;
 
     /**
      * 00000000  The NCS compatibility variant
      * @var int
      */
-    const varNCS = 0;
+    const VAR_NCS = 0;
 
     /**
      * 00010000
      * @var int
      */
-    const version1 = 16;
+    const VERSION_1 = 16;
 
     /**
      * 00110000
      * @var int
      */
-    const version3 = 48;
+    const VERSION_3 = 48;
 
     /**
      * 01000000
      * @var int
      */
-    const version4 = 64;
+    const VERSION_4 = 64;
 
     /**
      * 01010000
      * @var int
      */
-    const version5 = 80;
+    const VERSION_5 = 80;
 
     /**
      * Time (in 100ns steps) between the start of the UTC and Unix epochs
      * @var int
      */
-    const interval = 0x01b21dd213814000;
+    const INTERVAL = 0x01b21dd213814000;
 
     /**
      * @var string
      */
-    const nsDNS = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
+    const NS_DNS = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
 
     /**
      * @var string
      */
-    const nsURL = '6ba7b811-9dad-11d1-80b4-00c04fd430c8';
+    const NS_URL = '6ba7b811-9dad-11d1-80b4-00c04fd430c8';
 
     /**
      * @var string
      */
-    const nsOID = '6ba7b812-9dad-11d1-80b4-00c04fd430c8';
+    const NS_OID = '6ba7b812-9dad-11d1-80b4-00c04fd430c8';
 
     /**
      * @var string
      */
-    const nsX500 = '6ba7b814-9dad-11d1-80b4-00c04fd430c8';
+    const NS_X500 = '6ba7b814-9dad-11d1-80b4-00c04fd430c8';
 
     /**
      * @var string
@@ -171,7 +171,7 @@ class Uuid
          * integer size limits.
          * Note that this will never be more accurate than to the microsecond.
          */
-        $time = microtime(1) * 10000000 + static::interval;
+        $time = microtime(1) * 10000000 + static::INTERVAL;
 
         // Convert to a string representation
         $time = sprintf("%F", $time);
@@ -190,10 +190,10 @@ class Uuid
         $uuid .= static::randomBytes(2);
 
         // set variant
-        $uuid[8] = chr(ord($uuid[8]) & static::clearVar | static::varRFC);
+        $uuid[8] = chr(ord($uuid[8]) & static::CLEAR_VAR | static::VAR_RFC);
 
         // set version
-        $uuid[6] = chr(ord($uuid[6]) & static::clearVer | static::version1);
+        $uuid[6] = chr(ord($uuid[6]) & static::CLEAR_VER | static::VERSION_1);
 
         // Set the final 'node' parameter, a MAC address
         if (!is_null($node)) {
@@ -297,11 +297,11 @@ class Uuid
 
         switch ($ver) {
             case static::MD5:
-                $version = static::version3;
+                $version = static::VERSION_3;
                 $uuid = md5($ns . $node, 1);
                 break;
             case static::SHA1:
-                $version = static::version5;
+                $version = static::VERSION_5;
                 $uuid = substr(sha1($ns . $node, 1), 0, 16);
                 break;
             default:
@@ -309,10 +309,10 @@ class Uuid
         }
 
         // set variant
-        $uuid[8] = chr(ord($uuid[8]) & static::clearVar | static::varRFC);
+        $uuid[8] = chr(ord($uuid[8]) & static::CLEAR_VAR | static::VAR_RFC);
 
         // set version
-        $uuid[6] = chr(ord($uuid[6]) & static::clearVer | $version);
+        $uuid[6] = chr(ord($uuid[6]) & static::CLEAR_VER | $version);
 
         return ($uuid);
     }
@@ -328,9 +328,9 @@ class Uuid
     {
         $uuid = static::randomBytes(16);
         // set variant
-        $uuid[8] = chr(ord($uuid[8]) & static::clearVar | static::varRFC);
+        $uuid[8] = chr(ord($uuid[8]) & static::CLEAR_VAR | static::VAR_RFC);
         // set version
-        $uuid[6] = chr(ord($uuid[6]) & static::clearVer | static::version4);
+        $uuid[6] = chr(ord($uuid[6]) & static::CLEAR_VER | static::VERSION_4);
 
         return $uuid;
     }
@@ -429,11 +429,11 @@ class Uuid
             // no break
             case "variant":
                 $byte = ord($this->bytes[8]);
-                if ($byte >= static::varRes) {
+                if ($byte >= static::VAR_RES) {
                     return 3;
-                } elseif ($byte >= static::varMS) {
+                } elseif ($byte >= static::VAR_MS) {
                     return 2;
-                } elseif ($byte >= static::varRFC) {
+                } elseif ($byte >= static::VAR_RFC) {
                     return 1;
                 } else {
                     return 0;
@@ -455,7 +455,7 @@ class Uuid
                     $time[0] = "0";
 
                     // Do some reverse arithmetic to get a Unix timestamp
-                    return (hexdec($time) - static::interval) / 10000000;
+                    return (hexdec($time) - static::INTERVAL) / 10000000;
                 } else {
                     return null;
                 }
