@@ -142,16 +142,16 @@ class Uuid
         /* Create a new UUID based on provided data. */
         switch ((int)$ver) {
             case 1:
-                return new self(static::mintTime($node));
+                return new static(static::mintTime($node));
             case 2:
                 // Version 2 is not supported
                 throw new Exception('Version 2 is unsupported.');
             case 3:
-                return new self(static::mintName(static::MD5, $node, $ns));
+                return new static(static::mintName(static::MD5, $node, $ns));
             case 4:
-                return new self(static::mintRand());
+                return new static(static::mintRand());
             case 5:
-                return new self(static::mintName(static::SHA1, $node, $ns));
+                return new static(static::mintName(static::SHA1, $node, $ns));
             default:
                 throw new Exception('Selected version is invalid or unsupported.');
         }
@@ -197,16 +197,17 @@ class Uuid
         $uuid[6] = chr(ord($uuid[6]) & static::clearVer | static::version1);
 
         // Set the final 'node' parameter, a MAC address
-        if ($node) {
+        if (!is_null($node)) {
             $node = static::makeBin($node, 6);
         }
 
         // If no node was provided or if the node was invalid,
         //  generate a random MAC address and set the multicast bit
-        if (!$node) {
+        if (is_null($node)) {
             $node = static::randomBytes(6);
             $node[0] = pack("C", ord($node[0]) | 1);
         }
+
         $uuid .= $node;
 
         return $uuid;
@@ -229,7 +230,7 @@ class Uuid
      *
      * @param string $str
      * @param integer $len
-     * @return string|false
+     * @return string|null
      */
     protected static function makeBin($str, $len)
     {
@@ -245,7 +246,7 @@ class Uuid
         // strip non-hex characters
         $str = preg_replace('/[^a-f0-9]/is', '', $str);
         if (strlen($str) !== ($len * 2)) {
-            return false;
+            return null;
         } else {
             return pack("H*", $str);
         }
@@ -263,13 +264,13 @@ class Uuid
      */
     protected static function mintName($ver, $node, $ns)
     {
-        if (!$node) {
+        if (empty($node)) {
             throw new Exception('A name-string is required for Version 3 or 5 UUIDs.');
         }
 
         // if the namespace UUID isn't binary, make it so
         $ns = static::makeBin($ns, 16);
-        if (!$ns) {
+        if (is_null($ns)) {
             throw new Exception('A binary namespace is required for Version 3 or 5 UUIDs.');
         }
 
@@ -324,7 +325,7 @@ class Uuid
      */
     public static function import($uuid)
     {
-        return new self(static::makeBin($uuid, 16));
+        return new static(static::makeBin($uuid, 16));
     }
 
     /**
