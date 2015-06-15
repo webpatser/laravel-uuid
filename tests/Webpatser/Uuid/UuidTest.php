@@ -11,28 +11,28 @@ class UuidTest extends PHPUnit_Framework_TestCase {
         $uuid = Uuid::generate(1);
         $this->assertInstanceOf('Webpatser\Uuid\Uuid', $uuid);
 
-        $uuid = Uuid::generate(3, 'test', Uuid::nsDNS);
+        $uuid = Uuid::generate(3, 'example.com', Uuid::nsDNS);
         $this->assertInstanceOf('Webpatser\Uuid\Uuid', $uuid);
 
         $uuid = Uuid::generate(4);
         $this->assertInstanceOf('Webpatser\Uuid\Uuid', $uuid);
 
-        $uuid = Uuid::generate(5, 'test', Uuid::nsDNS);
+        $uuid = Uuid::generate(5, 'example.com', Uuid::nsDNS);
         $this->assertInstanceOf('Webpatser\Uuid\Uuid', $uuid);
     }
 
-    public function testGenerationOfValidUuids()
+    public function testGenerationOfValidUuid()
     {
         $uuid = Uuid::generate(1);
         $this->assertRegExp(self::uuidRegex, (string) $uuid);
 
-        $uuid = Uuid::generate(3, 'test', Uuid::nsDNS);
+        $uuid = Uuid::generate(3, 'example.com', Uuid::nsDNS);
         $this->assertRegExp(self::uuidRegex, (string) $uuid);
 
         $uuid = Uuid::generate(4);
         $this->assertRegExp(self::uuidRegex, (string) $uuid);
 
-        $uuid = Uuid::generate(5, 'test', Uuid::nsDNS);
+        $uuid = Uuid::generate(5, 'example.com', Uuid::nsDNS);
         $this->assertRegExp(self::uuidRegex, (string) $uuid);
     }
 
@@ -41,14 +41,29 @@ class UuidTest extends PHPUnit_Framework_TestCase {
         $uuidOne = Uuid::generate(1);
         $this->assertEquals(1, $uuidOne->version);
 
-        $uuidThree = Uuid::generate(3,'test', Uuid::nsDNS);;
+        $uuidThree = Uuid::generate(3,'example.com', Uuid::nsDNS);;
         $this->assertEquals(3, $uuidThree->version);
 
         $uuidFour = Uuid::generate(4);
         $this->assertEquals(4, $uuidFour->version);
 
-        $uuidFive = Uuid::generate(5,'test', Uuid::nsDNS);;
+        $uuidFive = Uuid::generate(5,'example.com', Uuid::nsDNS);;
         $this->assertEquals(5, $uuidFive->version);
+    }
+
+    public function testCorrectVariantUuid()
+    {
+        $uuidOne = Uuid::generate(1);
+        $this->assertEquals(1, $uuidOne->variant);
+
+        $uuidThree = Uuid::generate(3,'example.com', Uuid::nsDNS);;
+        $this->assertEquals(1, $uuidThree->variant);
+
+        $uuidFour = Uuid::generate(4);
+        $this->assertEquals(1, $uuidFour->variant);
+
+        $uuidFive = Uuid::generate(5,'example.com', Uuid::nsDNS);;
+        $this->assertEquals(1, $uuidFive->variant);
     }
 
     public function testCorrectVersionOfImportedUuid()
@@ -57,7 +72,7 @@ class UuidTest extends PHPUnit_Framework_TestCase {
         $importedOne = Uuid::import((string) $uuidOne);
         $this->assertEquals($uuidOne->version, $importedOne->version);
 
-        $uuidThree = Uuid::generate(3,'test', Uuid::nsDNS);;
+        $uuidThree = Uuid::generate(3,'example.com', Uuid::nsDNS);;
         $importedThree = Uuid::import((string) $uuidThree);
         $this->assertEquals($uuidThree->version, $importedThree->version);
 
@@ -65,9 +80,25 @@ class UuidTest extends PHPUnit_Framework_TestCase {
         $importedFour = Uuid::import((string) $uuidFour);
         $this->assertEquals($uuidFour->version, $importedFour->version);
 
-        $uuidFive = Uuid::generate(5,'test', Uuid::nsDNS);;
+        $uuidFive = Uuid::generate(5,'example.com', Uuid::nsDNS);;
         $importedFive = Uuid::import((string) $uuidFive);
         $this->assertEquals($uuidFive->version, $importedFive->version);
+    }
+
+    public function testCorrectNodeOfGeneratedUuid()
+    {
+        $macAdress = Faker\Provider\Internet::macAddress();
+        $uuidThree = Uuid::generate(1, $macAdress);
+        $this->assertEquals(strtolower(str_replace(':', '', $macAdress)), $uuidThree->node);
+
+        $uuidThree = Uuid::generate(3, $macAdress, Uuid::nsDNS);
+        $this->assertNull($uuidThree->node);
+
+        $uuidThree = Uuid::generate(4, $macAdress);
+        $this->assertNull($uuidThree->node);
+
+        $uuidThree = Uuid::generate(5, $macAdress, Uuid::nsDNS);
+        $this->assertNull($uuidThree->node);
     }
 
     public function testCorrectTimeOfImportedUuid()
@@ -76,7 +107,7 @@ class UuidTest extends PHPUnit_Framework_TestCase {
         $importedOne = Uuid::import((string) $uuidOne);
         $this->assertEquals($uuidOne->time, $importedOne->time);
 
-        $uuidThree = Uuid::generate(3,'test', Uuid::nsDNS);;
+        $uuidThree = Uuid::generate(3,'example.com', Uuid::nsDNS);;
         $importedThree = Uuid::import((string) $uuidThree);
         $this->assertEmpty($importedThree->time);
 
@@ -84,7 +115,7 @@ class UuidTest extends PHPUnit_Framework_TestCase {
         $importedFour = Uuid::import((string) $uuidFour);
         $this->assertEmpty($importedFour->time);
 
-        $uuidFive = Uuid::generate(5,'test', Uuid::nsDNS);;
+        $uuidFive = Uuid::generate(5,'example.com', Uuid::nsDNS);;
         $importedFive = Uuid::import((string) $uuidFive);
         $this->assertEmpty($importedFive->time);
     }

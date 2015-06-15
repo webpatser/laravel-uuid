@@ -27,7 +27,7 @@ class Uuid
     const varRes = 224;
 
     /**
-     * 11000000  Microsft GUID variant
+     * 11000000  Microsoft UUID variant
      * @var int
      */
     const varMS = 192;
@@ -97,12 +97,7 @@ class Uuid
     /**
      * @var string
      */
-    protected static $randomFunc = 'randomTwister';
-
-    /**
-     * @var mixed
-     */
-    protected static $randomSource = null;
+    protected static $randomFunc = 'randomMcrypt';
 
     protected $bytes;
     protected $hex;
@@ -119,7 +114,7 @@ class Uuid
      */
     protected function __construct($uuid)
     {
-        if (strlen($uuid) != 16) {
+        if (!empty($uuid) && strlen($uuid) !== 16) {
             throw new Exception('Input must be a 128-bit integer.');
         }
 
@@ -206,7 +201,6 @@ class Uuid
             $node = static::makeBin($node, 6);
         }
 
-
         // If no node was provided or if the node was invalid,
         //  generate a random MAC address and set the multicast bit
         if (!$node) {
@@ -226,7 +220,8 @@ class Uuid
      */
     public static function randomBytes($bytes)
     {
-        return call_user_func(array('static', static::$randomFunc), $bytes);
+        var_dump(static::initRandom());
+        return call_user_func(array('static', static::initRandom()), $bytes);
     }
 
     /**
@@ -279,6 +274,9 @@ class Uuid
             throw new Exception('A binary namespace is required for Version 3 or 5 UUIDs.');
         }
 
+        $version = null;
+        $uuid = null;
+
         switch ($ver) {
             case static::MD5:
                 $version = static::version3;
@@ -288,6 +286,8 @@ class Uuid
                 $version = static::version5;
                 $uuid = substr(sha1($ns . $node, 1), 0, 16);
                 break;
+            default:
+                // no default really required here
         }
 
         // set variant
@@ -301,7 +301,7 @@ class Uuid
 
     /**
      * Generate a Version 4 UUID.
-     * These are derived soly from random numbers.
+     * These are derived solely from random numbers.
      * generate random fields
      *
      * @return string
@@ -347,27 +347,46 @@ class Uuid
     }
 
     /**
-     * Look for a system-provided source of randomness, which is usually cryptographically secure.
-     * /dev/urandom is tried first simply out of bias for Linux systems.
+     * Trying for openSSL and Mcrypt random generators. Fallback to mt_rand
+     * Since laravel 4.* and 5.0 requires Mcrypt and 5.1 requires OpenSSL the fallback should never be used.
+     *
+     * @throws Exception
+     * @return string
      */
     public static function initRandom()
     {
-        if (is_readable('/dev/urandom')) {
-            static::$randomSource = fopen('/dev/urandom', 'rb');
-            static::$randomFunc = 'randomFRead';
-        } else // See http://msdn.microsoft.com/en-us/library/aa388182(VS.85).aspx
-        {
-            if (class_exists('COM', 0)) {
-                try {
-                    static::$randomSource = new COM('CAPICOM.Utilities.1');
-                    static::$randomFunc = 'randomCOM';
-                } catch (Exception $e) {
-                    throw new Exception ('Cannot initialize windows random generator');
-                }
-            }
+        if (function_exists('openssl_random_pseudo_bytes')) {
+            return 'randomOpenSSL';
+        } else if (function_exists('mcrypt_encrypt')) {
+            return 'randomMcrypt';
         }
 
-        return static::$randomFunc;
+        // This is not the best randomizer (using mt_rand)...
+        return 'randomTwister';
+    }
+
+    /**
+     * Get the specified number of random bytes, using openssl_random_pseudo_bytes().
+     * Randomness is returned as a string of bytes.
+     *
+     * @param $bytes
+     * @return mixed
+     */
+    protected static function randomOpenSSL($bytes)
+    {
+        return openssl_random_pseudo_bytes($bytes);
+    }
+
+    /**
+     * Get the specified number of random bytes, using mcrypt_create_iv().
+     * Randomness is returned as a string of bytes.
+     *
+     * @param $bytes
+     * @return string
+     */
+    protected static function randomMcrypt($bytes)
+    {
+        return mcrypt_create_iv($bytes, MCRYPT_DEV_URANDOM);
     }
 
     /**
@@ -385,34 +404,6 @@ class Uuid
         }
 
         return $rand;
-    }
-
-    /**
-     * Get the specified number of random bytes using a file handle
-     * previously opened with UUID::c().
-     * Randomness is returned as a string of bytes.
-     *
-     * @param integer $bytes
-     * @return string
-     */
-    protected static function randomFRead($bytes)
-    {
-        return fread(static::$randomSource, $bytes);
-    }
-
-    /**
-     * Get the specified number of random bytes using Windows'
-     * randomness source via a COM object previously created by UUID::initRandom().
-     * Randomness is returned as a string of bytes.
-     *
-     * Straight binary mysteriously doesn't work, hence the base64
-     *
-     * @param integer $bytes
-     * @return string
-     */
-    protected static function randomCOM($bytes)
-    {
-        return base64_decode(static::$randomSource->GetRandom($bytes, 0));
     }
 
     /**
