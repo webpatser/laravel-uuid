@@ -121,12 +121,11 @@ class Uuid
         $this->bytes = $uuid;
 
         // Optimize the most common use
-        $this->string = bin2hex(
-                substr($uuid, 0, 4)) . "-" . bin2hex(
-                substr($uuid, 4, 2)) . "-" . bin2hex(
-                substr($uuid, 6, 2)) . "-" . bin2hex(
-                substr($uuid, 8, 2)) . "-" . bin2hex(
-                substr($uuid, 10, 6));
+        $this->string = bin2hex(substr($uuid, 0, 4)) . "-" .
+            bin2hex(substr($uuid, 4, 2)) . "-" .
+            bin2hex(substr($uuid, 6, 2)) . "-" .
+            bin2hex(substr($uuid, 8, 2)) . "-" .
+            bin2hex(substr($uuid, 10, 6));
     }
 
 
@@ -357,7 +356,7 @@ class Uuid
     {
         if (function_exists('openssl_random_pseudo_bytes')) {
             return 'randomOpenSSL';
-        } else if (function_exists('mcrypt_encrypt')) {
+        } elseif (function_exists('mcrypt_encrypt')) {
             return 'randomMcrypt';
         }
 
@@ -402,7 +401,6 @@ class Uuid
         for ($a = 0; $a < $bytes; $a++) {
             $rand .= chr(mt_rand(0, 255));
         }
-
         return $rand;
     }
 
@@ -432,9 +430,9 @@ class Uuid
                 $byte = ord($this->bytes[8]);
                 if ($byte >= static::varRes) {
                     return 3;
-                }else if ($byte >= static::varMS) {
+                } elseif ($byte >= static::varMS) {
                     return 2;
-                }else if ($byte >= static::varRFC) {
+                } elseif ($byte >= static::varRFC) {
                     return 1;
                 } else {
                     return 0;
