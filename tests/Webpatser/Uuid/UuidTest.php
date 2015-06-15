@@ -44,8 +44,8 @@ class UuidTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($uuidThree->version, $importedThree->version);
 
         $uuidFour = Uuid::generate(4);
-        $importeFour = Uuid::import((string) $uuidFour);
-        $this->assertEquals($uuidFour->version, $importeFour->version);
+        $importedFour = Uuid::import((string) $uuidFour);
+        $this->assertEquals($uuidFour->version, $importedFour->version);
 
         $uuidFive = Uuid::generate(5,'test', Uuid::nsDNS);;
         $importedFive = Uuid::import((string) $uuidFive);
@@ -63,8 +63,8 @@ class UuidTest extends PHPUnit_Framework_TestCase {
         $this->assertEmpty($importedThree->time);
 
         $uuidFour = Uuid::generate(4);
-        $importeFour = Uuid::import((string) $uuidFour);
-        $this->assertEmpty($importeFour->time);
+        $importedFour = Uuid::import((string) $uuidFour);
+        $this->assertEmpty($importedFour->time);
 
         $uuidFive = Uuid::generate(5,'test', Uuid::nsDNS);;
         $importedFive = Uuid::import((string) $uuidFive);

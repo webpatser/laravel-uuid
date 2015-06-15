@@ -1,7 +1,7 @@
 <?php
 
 namespace Webpatser\Uuid;
- 
+
 use Exception;
 
 class Uuid
@@ -102,7 +102,7 @@ class Uuid
     /**
      * @var mixed
      */
-    protected static $randomSource = NULL;
+    protected static $randomSource = null;
 
     protected $bytes;
     protected $hex;
@@ -112,29 +112,29 @@ class Uuid
     protected $variant;
     protected $node;
     protected $time;
- 
+
     /**
      * @param string $uuid
      * @throws Exception
      */
-    protected function __construct ($uuid)
+    protected function __construct($uuid)
     {
         if (strlen($uuid) != 16) {
             throw new Exception('Input must be a 128-bit integer.');
         }
- 
+
         $this->bytes = $uuid;
- 
+
         // Optimize the most common use
         $this->string = bin2hex(
-            substr($uuid, 0, 4)) . "-" . bin2hex(
-            substr($uuid, 4, 2)) . "-" . bin2hex(
-            substr($uuid, 6, 2)) . "-" . bin2hex(
-            substr($uuid, 8, 2)) . "-" . bin2hex(
-            substr($uuid, 10, 6));
+                substr($uuid, 0, 4)) . "-" . bin2hex(
+                substr($uuid, 4, 2)) . "-" . bin2hex(
+                substr($uuid, 6, 2)) . "-" . bin2hex(
+                substr($uuid, 8, 2)) . "-" . bin2hex(
+                substr($uuid, 10, 6));
     }
- 
- 
+
+
     /**
      * @param int $ver
      * @param string $node
@@ -142,37 +142,186 @@ class Uuid
      * @return Uuid
      * @throws Exception
      */
-    public static function generate ($ver = 1, $node = NULL, $ns = NULL)
+    public static function generate($ver = 1, $node = null, $ns = null)
     {
         /* Create a new UUID based on provided data. */
-        switch ((int) $ver) {
+        switch ((int)$ver) {
             case 1:
-                return new self( self::mintTime( $node ) );
+                return new self(self::mintTime($node));
             case 2:
                 // Version 2 is not supported
-                throw new Exception( 'Version 2 is unsupported.' );
+                throw new Exception('Version 2 is unsupported.');
             case 3:
-                return new self( self::mintName( self::MD5, $node, $ns ) );
+                return new self(self::mintName(self::MD5, $node, $ns));
             case 4:
-                return new self( self::mintRand() );
+                return new self(self::mintRand());
             case 5:
-                return new self( self::mintName( self::SHA1, $node, $ns ) );
+                return new self(self::mintName(self::SHA1, $node, $ns));
             default:
-                throw new Exception( 'Selected version is invalid or unsupported.' );
+                throw new Exception('Selected version is invalid or unsupported.');
         }
     }
- 
+
+    /**
+     * Generates a Version 1 UUID.
+     * These are derived from the time at which they were generated.
+     *
+     * @param string $node
+     * @return string
+     */
+    protected static function mintTime($node = null)
+    {
+
+        /** Get time since Gregorian calendar reform in 100ns intervals
+         * This is exceedingly difficult because of PHP's (and pack()'s)
+         * integer size limits.
+         * Note that this will never be more accurate than to the microsecond.
+         */
+        $time = microtime(1) * 10000000 + self::interval;
+
+        // Convert to a string representation
+        $time = sprintf("%F", $time);
+
+        //strip decimal point
+        preg_match("/^\d+/", $time, $time);
+
+        // And now to a 64-bit binary representation
+        $time = base_convert($time[0], 10, 16);
+        $time = pack("H*", str_pad($time, 16, "0", STR_PAD_LEFT));
+
+        // Reorder bytes to their proper locations in the UUID
+        $uuid = $time[4] . $time[5] . $time[6] . $time[7] . $time[2] . $time[3] . $time[0] . $time[1];
+
+        // Generate a random clock sequence
+        $uuid .= self::randomBytes(2);
+
+        // set variant
+        $uuid[8] = chr(ord($uuid[8]) & self::clearVar | self::varRFC);
+
+        // set version
+        $uuid[6] = chr(ord($uuid[6]) & self::clearVer | self::version1);
+
+        // Set the final 'node' parameter, a MAC address
+        if ($node) {
+            $node = self::makeBin($node, 6);
+        }
+
+
+        // If no node was provided or if the node was invalid,
+        //  generate a random MAC address and set the multicast bit
+        if (!$node) {
+            $node = self::randomBytes(6);
+            $node[0] = pack("C", ord($node[0]) | 1);
+        }
+        $uuid .= $node;
+
+        return $uuid;
+    }
+
+    public static function randomBytes($bytes)
+    {
+        return call_user_func(['self', self::$randomFunc], $bytes);
+    }
+
+    /**
+     * Insure that an input string is either binary or hexadecimal.
+     * Returns binary representation, or false on failure.
+     *
+     * @param string $str
+     * @param integer $len
+     * @return string|false
+     */
+    protected static function makeBin($str, $len)
+    {
+        if ($str instanceof self) {
+            return $str->bytes;
+        }
+        if (strlen($str) === $len) {
+            return $str;
+        } else {
+            // strip URN scheme and namespace
+            $str = preg_replace('/^urn:uuid:/is', '', $str);
+        }
+        // strip non-hex characters
+        $str = preg_replace('/[^a-f0-9]/is', '', $str);
+        if (strlen($str) !== ($len * 2)) {
+            return false;
+        } else {
+            return pack("H*", $str);
+        }
+    }
+
+    /**
+     * Generates a Version 3 or Version 5 UUID.
+     * These are derived from a hash of a name and its namespace, in binary form.
+     *
+     * @param string $ver
+     * @param string $node
+     * @param string $ns
+     * @return string
+     * @throws Exception
+     */
+    protected static function mintName($ver, $node, $ns)
+    {
+        if (!$node) {
+            throw new Exception('A name-string is required for Version 3 or 5 UUIDs.');
+        }
+
+        // if the namespace UUID isn't binary, make it so
+        $ns = self::makeBin($ns, 16);
+        if (!$ns) {
+            throw new Exception('A binary namespace is required for Version 3 or 5 UUIDs.');
+        }
+
+        switch ($ver) {
+            case self::MD5:
+                $version = self::version3;
+                $uuid = md5($ns . $node, 1);
+                break;
+            case self::SHA1:
+                $version = self::version5;
+                $uuid = substr(sha1($ns . $node, 1), 0, 16);
+                break;
+        }
+
+        // set variant
+        $uuid[8] = chr(ord($uuid[8]) & self::clearVar | self::varRFC);
+
+        // set version
+        $uuid[6] = chr(ord($uuid[6]) & self::clearVer | $version);
+
+        return ($uuid);
+    }
+
+    /**
+     * Generate a Version 4 UUID.
+     * These are derived soly from random numbers.
+     * generate random fields
+     *
+     * @return string
+     */
+    protected static function mintRand()
+    {
+        $uuid = self::randomBytes(16);
+        // set variant
+        $uuid[8] = chr(ord($uuid[8]) & self::clearVar | self::varRFC);
+        // set version
+        $uuid[6] = chr(ord($uuid[6]) & self::clearVer | self::version4);
+
+        return $uuid;
+    }
+
     /**
      * Import an existing UUID
      *
      * @param string $uuid
      * @return Uuid
      */
-    public static function import ($uuid)
+    public static function import($uuid)
     {
         return new self(self::makeBin($uuid, 16));
     }
- 
+
     /**
      * Compares the binary representations of two UUIDs.
      * The comparison will return true if they are bit-exact,
@@ -182,32 +331,90 @@ class Uuid
      * @param string $b
      * @return string|string
      */
-    public static function compare ($a, $b)
+    public static function compare($a, $b)
     {
         /*  */
         if (self::makeBin($a, 16) == self::makeBin($b, 16)) {
-            return TRUE;
+            return true;
         } else {
-            return FALSE;
+            return false;
         }
     }
- 
+
     /**
-     * Echo the uuid
+     * Look for a system-provided source of randomness, which is usually cryptographically secure.
+     * /dev/urandom is tried first simply out of bias for Linux systems.
+     */
+    public static function initRandom()
+    {
+        if (is_readable('/dev/urandom')) {
+            self::$randomSource = fopen('/dev/urandom', 'rb');
+            self::$randomFunc = 'randomFRead';
+        } else // See http://msdn.microsoft.com/en-us/library/aa388182(VS.85).aspx
+        {
+            if (class_exists('COM', 0)) {
+                try {
+                    self::$randomSource = new COM('CAPICOM.Utilities.1');
+                    self::$randomFunc = 'randomCOM';
+                } catch (Exception $e) {
+                    throw new Exception ('Cannot initialize windows random generator');
+                }
+            }
+        }
+
+        return self::$randomFunc;
+    }
+
+    /**
+     * Get the specified number of random bytes, using mt_rand().
+     * Randomness is returned as a string of bytes.
      *
+     * @param integer $bytes
      * @return string
      */
-    public function __toString ()
+    protected static function randomTwister($bytes)
     {
-        return $this->string;
+        $rand = "";
+        for ($a = 0; $a < $bytes; $a++) {
+            $rand .= chr(mt_rand(0, 255));
+        }
+
+        return $rand;
     }
- 
- 
+
+    /**
+     * Get the specified number of random bytes using a file handle
+     * previously opened with UUID::c().
+     * Randomness is returned as a string of bytes.
+     *
+     * @param integer $bytes
+     * @return string
+     */
+    protected static function randomFRead($bytes)
+    {
+        return fread(self::$randomSource, $bytes);
+    }
+
+    /**
+     * Get the specified number of random bytes using Windows'
+     * randomness source via a COM object previously created by UUID::initRandom().
+     * Randomness is returned as a string of bytes.
+     *
+     * Straight binary mysteriously doesn't work, hence the base64
+     *
+     * @param integer $bytes
+     * @return string
+     */
+    protected static function randomCOM($bytes)
+    {
+        return base64_decode(self::$randomSource->GetRandom($bytes, 0));
+    }
+
     /**
      * @param string $var
      * @return string|string|number|number|number|number|number|NULL|number|NULL|NULL
      */
-    public function __get ($var)
+    public function __get($var)
     {
         switch ($var) {
             case "bytes":
@@ -222,9 +429,13 @@ class Uuid
                 return ord($this->bytes[6]) >> 4;
             case "variant":
                 $byte = ord(
-                $this->bytes[8]);
-                if ($byte >= self::varRes) return 3;
-                if ($byte >= self::varMS) return 2;
+                    $this->bytes[8]);
+                if ($byte >= self::varRes) {
+                    return 3;
+                }
+                if ($byte >= self::varMS) {
+                    return 2;
+                }
                 if ($byte >= self::varRFC) {
                     return 1;
                 } else {
@@ -232,231 +443,36 @@ class Uuid
                 }
             case "node":
                 if (ord($this->bytes[6]) >> 4 == 1) {
-                    return bin2hex(substr($this->bytes,10));
+                    return bin2hex(substr($this->bytes, 10));
                 } else {
-                    return NULL;
+                    return null;
                 }
             case "time":
                 if (ord($this->bytes[6]) >> 4 == 1) {
                     // Restore contiguous big-endian byte order
-                    $time = bin2hex( $this->bytes[6] . $this->bytes[7] . $this->bytes[4] . $this->bytes[5] .
-                                     $this->bytes[0] . $this->bytes[1] . $this->bytes[2] . $this->bytes[3]);
+                    $time = bin2hex($this->bytes[6] . $this->bytes[7] . $this->bytes[4] . $this->bytes[5] .
+                        $this->bytes[0] . $this->bytes[1] . $this->bytes[2] . $this->bytes[3]);
                     // Clear version flag
                     $time[0] = "0";
                     // Do some reverse arithmetic to get a Unix timestamp
                     $time = (hexdec($time) - self::interval) / 10000000;
+
                     return $time;
-                } else
-                    return NULL;
-            default:
-                return NULL;
-        }
-    }
- 
-    /**
-     * Generates a Version 1 UUID.
-     * These are derived from the time at which they were generated.
-     *
-     * @param string $node
-     * @return string
-     */
-    protected static function mintTime ($node = NULL)
-    {
- 
-        /** Get time since Gregorian calendar reform in 100ns intervals
-         * This is exceedingly difficult because of PHP's (and pack()'s)
-         * integer size limits.
-         * Note that this will never be more accurate than to the microsecond.
-         */
-        $time = microtime(1) * 10000000 + self::interval;
- 
-        // Convert to a string representation
-        $time = sprintf("%F", $time);
- 
-        //strip decimal point
-        preg_match("/^\d+/", $time, $time);
- 
-        // And now to a 64-bit binary representation
-        $time = base_convert( $time[0], 10, 16);
-        $time = pack("H*", str_pad($time, 16, "0", STR_PAD_LEFT) );
- 
-        // Reorder bytes to their proper locations in the UUID
-        $uuid = $time[4] . $time[5] . $time[6] . $time[7] . $time[2] . $time[3] . $time[0] . $time[1];
- 
-        // Generate a random clock sequence
-        $uuid .= self::randomBytes(2);
- 
-        // set variant
-        $uuid[8] = chr(ord($uuid[8]) & self::clearVar | self::varRFC);
- 
-        // set version
-        $uuid[6] = chr(ord($uuid[6]) & self::clearVer | self::version1);
- 
-        // Set the final 'node' parameter, a MAC address
-        if ($node) {
-            $node = self::makeBin($node, 6);
-        }
- 
- 
-        // If no node was provided or if the node was invalid,
-        //  generate a random MAC address and set the multicast bit
-        if (! $node) {
-            $node = self::randomBytes(6);
-            $node[0] = pack("C", ord($node[0]) | 1 );
-        }
-        $uuid .= $node;
-        return $uuid;
-    }
-    /**
-     * Generate a Version 4 UUID.
-     * These are derived soly from random numbers.
-     * generate random fields
-     *
-     * @return string
-     */
-    protected static function mintRand ()
-    {
-        $uuid = self::randomBytes(16);
-        // set variant
-        $uuid[8] = chr(ord($uuid[8]) & self::clearVar | self::varRFC);
-        // set version
-        $uuid[6] = chr(ord($uuid[6]) & self::clearVer | self::version4);
-        return $uuid;
-    }
-    /**
-     * Generates a Version 3 or Version 5 UUID.
-     * These are derived from a hash of a name and its namespace, in binary form.
-     *
-     * @param string $ver
-     * @param string $node
-     * @param string $ns
-     * @return string
-     * @throws Exception
-     */
-    protected static function mintName ($ver, $node, $ns)
-    {
-        if (! $node) {
-            throw new Exception('A name-string is required for Version 3 or 5 UUIDs.');
-        }
- 
-        // if the namespace UUID isn't binary, make it so
-        $ns = self::makeBin($ns, 16);
-        if (! $ns) {
-            throw new Exception('A binary namespace is required for Version 3 or 5 UUIDs.');
-        }
- 
-        switch ($ver) {
-            case self::MD5:
-                $version = self::version3;
-                $uuid = md5($ns . $node, 1);
-                break;
-            case self::SHA1:
-                $version = self::version5;
-                $uuid = substr(sha1($ns . $node, 1), 0, 16);
-                break;
-        }
- 
-        // set variant
-        $uuid[8] = chr( ord($uuid[8]) & self::clearVar | self::varRFC);
- 
-        // set version
-        $uuid[6] = chr( ord($uuid[6]) & self::clearVer | $version);
-        return ($uuid);
-    }
-    /**
-     * Insure that an input string is either binary or hexadecimal.
-     * Returns binary representation, or false on failure.
-     *
-     * @param string $str
-     * @param integer $len
-     * @return string|false
-     */
-    protected static function makeBin ($str, $len)
-    {
-        if ($str instanceof self)
-            return $str->bytes;
-        if (strlen($str) === $len) {
-            return $str;
-        } else {
-            // strip URN scheme and namespace
-            $str = preg_replace('/^urn:uuid:/is', '', $str);
-        }
-        // strip non-hex characters
-        $str = preg_replace('/[^a-f0-9]/is', '', $str);
-        if (strlen($str) !== ($len * 2)) {
-            return FALSE;
-        } else {
-            return pack("H*", $str);
-        }
-    }
- 
-    /**
-     * Look for a system-provided source of randomness, which is usually cryptographically secure.
-     * /dev/urandom is tried first simply out of bias for Linux systems.
-     */
-    public static function initRandom ()
-    {
-        if (is_readable('/dev/urandom')) {
-            self::$randomSource = fopen( '/dev/urandom', 'rb');
-            self::$randomFunc = 'randomFRead';
-        } else
-            // See http://msdn.microsoft.com/en-us/library/aa388182(VS.85).aspx
-            if (class_exists('COM', 0)) {
-                try {
-                    self::$randomSource = new COM('CAPICOM.Utilities.1');
-                    self::$randomFunc = 'randomCOM';
-                } catch (Exception $e) {
-                    throw new Exception ('Cannot initialize windows random generator');
+                } else {
+                    return null;
                 }
-            }
-        return self::$randomFunc;
-    }
- 
-    public static function randomBytes ($bytes)
-    {
-        return call_user_func(array('self', self::$randomFunc), $bytes);
+            default:
+                return null;
+        }
     }
 
     /**
-     * Get the specified number of random bytes, using mt_rand().
-     * Randomness is returned as a string of bytes.
+     * Return the UUID
      *
-     * @param integer $bytes
      * @return string
      */
-    protected static function randomTwister ($bytes)
+    public function __toString()
     {
-        $rand = "";
-        for ($a = 0; $a < $bytes; $a ++) {
-            $rand .= chr(mt_rand(0, 255));
-        }
-        return $rand;
-    }
- 
-    /**
-     * Get the specified number of random bytes using a file handle
-     * previously opened with UUID::c().
-     * Randomness is returned as a string of bytes.
-     *
-     * @param integer $bytes
-     * @return string
-     */
-    protected static function randomFRead ($bytes)
-    {
-        return fread(self::$randomSource, $bytes);
-    }
-    /**
-     * Get the specified number of random bytes using Windows'
-     * randomness source via a COM object previously created by UUID::initRandom().
-     * Randomness is returned as a string of bytes.
-     *
-     * Straight binary mysteriously doesn't work, hence the base64
-     *
-     * @param integer $bytes
-     * @return string
-     */
-    protected static function randomCOM ($bytes)
-    {
-        return base64_decode(self::$randomSource->GetRandom($bytes, 0));
+        return $this->string;
     }
 }
