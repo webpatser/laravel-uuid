@@ -12,7 +12,7 @@ Since Laravel `4.*` and `5.*` both rely on either `OpenSSL` or `Mcrypt`, the pse
 ## What's new in 2.*
 Laravel Uuid is now fully PSR-2, just like Laravel 5.1. Not that much has changed except for UPPERCASING the contants used in Laravel Uuid. Meaning `Uuid::nsDNS` is now `Uuid::NS_DNS` etc. Should be an easy fix.
 
-For the 1.* branch check the docs [here](https://github.com/webpatser/laravel-uuid/tree/1.4)
+For the 1.* branch check the docs [here](https://github.com/webpatser/laravel-uuid/tree/1.5)
 
 ## Installation
 
