@@ -220,7 +220,6 @@ class Uuid
      */
     public static function randomBytes($bytes)
     {
-        var_dump(static::initRandom());
         return call_user_func(array('static', static::initRandom()), $bytes);
     }
 
