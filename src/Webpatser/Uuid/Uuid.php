@@ -147,16 +147,16 @@ class Uuid
         /* Create a new UUID based on provided data. */
         switch ((int)$ver) {
             case 1:
-                return new self(self::mintTime($node));
+                return new self(static::mintTime($node));
             case 2:
                 // Version 2 is not supported
                 throw new Exception('Version 2 is unsupported.');
             case 3:
-                return new self(self::mintName(self::MD5, $node, $ns));
+                return new self(static::mintName(static::MD5, $node, $ns));
             case 4:
-                return new self(self::mintRand());
+                return new self(static::mintRand());
             case 5:
-                return new self(self::mintName(self::SHA1, $node, $ns));
+                return new self(static::mintName(static::SHA1, $node, $ns));
             default:
                 throw new Exception('Selected version is invalid or unsupported.');
         }
@@ -177,7 +177,7 @@ class Uuid
          * integer size limits.
          * Note that this will never be more accurate than to the microsecond.
          */
-        $time = microtime(1) * 10000000 + self::interval;
+        $time = microtime(1) * 10000000 + static::interval;
 
         // Convert to a string representation
         $time = sprintf("%F", $time);
@@ -193,24 +193,24 @@ class Uuid
         $uuid = $time[4] . $time[5] . $time[6] . $time[7] . $time[2] . $time[3] . $time[0] . $time[1];
 
         // Generate a random clock sequence
-        $uuid .= self::randomBytes(2);
+        $uuid .= static::randomBytes(2);
 
         // set variant
-        $uuid[8] = chr(ord($uuid[8]) & self::clearVar | self::varRFC);
+        $uuid[8] = chr(ord($uuid[8]) & static::clearVar | static::varRFC);
 
         // set version
-        $uuid[6] = chr(ord($uuid[6]) & self::clearVer | self::version1);
+        $uuid[6] = chr(ord($uuid[6]) & static::clearVer | static::version1);
 
         // Set the final 'node' parameter, a MAC address
         if ($node) {
-            $node = self::makeBin($node, 6);
+            $node = static::makeBin($node, 6);
         }
 
 
         // If no node was provided or if the node was invalid,
         //  generate a random MAC address and set the multicast bit
         if (!$node) {
-            $node = self::randomBytes(6);
+            $node = static::randomBytes(6);
             $node[0] = pack("C", ord($node[0]) | 1);
         }
         $uuid .= $node;
@@ -226,7 +226,7 @@ class Uuid
      */
     public static function randomBytes($bytes)
     {
-        return call_user_func(['static', static::$randomFunc], $bytes);
+        return call_user_func(array('static', static::$randomFunc), $bytes);
     }
 
     /**
@@ -274,27 +274,27 @@ class Uuid
         }
 
         // if the namespace UUID isn't binary, make it so
-        $ns = self::makeBin($ns, 16);
+        $ns = static::makeBin($ns, 16);
         if (!$ns) {
             throw new Exception('A binary namespace is required for Version 3 or 5 UUIDs.');
         }
 
         switch ($ver) {
-            case self::MD5:
-                $version = self::version3;
+            case static::MD5:
+                $version = static::version3;
                 $uuid = md5($ns . $node, 1);
                 break;
-            case self::SHA1:
-                $version = self::version5;
+            case static::SHA1:
+                $version = static::version5;
                 $uuid = substr(sha1($ns . $node, 1), 0, 16);
                 break;
         }
 
         // set variant
-        $uuid[8] = chr(ord($uuid[8]) & self::clearVar | self::varRFC);
+        $uuid[8] = chr(ord($uuid[8]) & static::clearVar | static::varRFC);
 
         // set version
-        $uuid[6] = chr(ord($uuid[6]) & self::clearVer | $version);
+        $uuid[6] = chr(ord($uuid[6]) & static::clearVer | $version);
 
         return ($uuid);
     }
@@ -308,11 +308,11 @@ class Uuid
      */
     protected static function mintRand()
     {
-        $uuid = self::randomBytes(16);
+        $uuid = static::randomBytes(16);
         // set variant
-        $uuid[8] = chr(ord($uuid[8]) & self::clearVar | self::varRFC);
+        $uuid[8] = chr(ord($uuid[8]) & static::clearVar | static::varRFC);
         // set version
-        $uuid[6] = chr(ord($uuid[6]) & self::clearVer | self::version4);
+        $uuid[6] = chr(ord($uuid[6]) & static::clearVer | static::version4);
 
         return $uuid;
     }
@@ -325,7 +325,7 @@ class Uuid
      */
     public static function import($uuid)
     {
-        return new self(self::makeBin($uuid, 16));
+        return new self(static::makeBin($uuid, 16));
     }
 
     /**
@@ -339,7 +339,7 @@ class Uuid
      */
     public static function compare($a, $b)
     {
-        if (self::makeBin($a, 16) == self::makeBin($b, 16)) {
+        if (static::makeBin($a, 16) == static::makeBin($b, 16)) {
             return true;
         } else {
             return false;
@@ -353,21 +353,21 @@ class Uuid
     public static function initRandom()
     {
         if (is_readable('/dev/urandom')) {
-            self::$randomSource = fopen('/dev/urandom', 'rb');
-            self::$randomFunc = 'randomFRead';
+            static::$randomSource = fopen('/dev/urandom', 'rb');
+            static::$randomFunc = 'randomFRead';
         } else // See http://msdn.microsoft.com/en-us/library/aa388182(VS.85).aspx
         {
             if (class_exists('COM', 0)) {
                 try {
-                    self::$randomSource = new COM('CAPICOM.Utilities.1');
-                    self::$randomFunc = 'randomCOM';
+                    static::$randomSource = new COM('CAPICOM.Utilities.1');
+                    static::$randomFunc = 'randomCOM';
                 } catch (Exception $e) {
                     throw new Exception ('Cannot initialize windows random generator');
                 }
             }
         }
 
-        return self::$randomFunc;
+        return static::$randomFunc;
     }
 
     /**
@@ -397,7 +397,7 @@ class Uuid
      */
     protected static function randomFRead($bytes)
     {
-        return fread(self::$randomSource, $bytes);
+        return fread(static::$randomSource, $bytes);
     }
 
     /**
@@ -412,7 +412,7 @@ class Uuid
      */
     protected static function randomCOM($bytes)
     {
-        return base64_decode(self::$randomSource->GetRandom($bytes, 0));
+        return base64_decode(static::$randomSource->GetRandom($bytes, 0));
     }
 
     /**
@@ -435,13 +435,13 @@ class Uuid
             case "variant":
                 $byte = ord(
                     $this->bytes[8]);
-                if ($byte >= self::varRes) {
+                if ($byte >= static::varRes) {
                     return 3;
                 }
-                if ($byte >= self::varMS) {
+                if ($byte >= static::varMS) {
                     return 2;
                 }
-                if ($byte >= self::varRFC) {
+                if ($byte >= static::varRFC) {
                     return 1;
                 } else {
                     return 0;
@@ -460,7 +460,7 @@ class Uuid
                     // Clear version flag
                     $time[0] = "0";
                     // Do some reverse arithmetic to get a Unix timestamp
-                    $time = (hexdec($time) - self::interval) / 10000000;
+                    $time = (hexdec($time) - static::interval) / 10000000;
 
                     return $time;
                 } else {
