@@ -424,15 +424,12 @@ class Uuid
             case "version":
                 return ord($this->bytes[6]) >> 4;
             case "variant":
-                $byte = ord(
-                    $this->bytes[8]);
+                $byte = ord($this->bytes[8]);
                 if ($byte >= static::varRes) {
                     return 3;
-                }
-                if ($byte >= static::varMS) {
+                }else if ($byte >= static::varMS) {
                     return 2;
-                }
-                if ($byte >= static::varRFC) {
+                }else if ($byte >= static::varRFC) {
                     return 1;
                 } else {
                     return 0;
@@ -451,9 +448,7 @@ class Uuid
                     // Clear version flag
                     $time[0] = "0";
                     // Do some reverse arithmetic to get a Unix timestamp
-                    $time = (hexdec($time) - static::interval) / 10000000;
-
-                    return $time;
+                    return (hexdec($time) - static::interval) / 10000000;
                 } else {
                     return null;
                 }
