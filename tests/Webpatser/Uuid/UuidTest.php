@@ -4,9 +4,6 @@ use Webpatser\Uuid\Uuid;
 
 class UuidTest extends PHPUnit_Framework_TestCase
 {
-
-    const UUID_REGEX = '/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/';
-
     public function testStaticGeneration()
     {
         $uuid = Uuid::generate(1);
@@ -22,19 +19,26 @@ class UuidTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Webpatser\Uuid\Uuid', $uuid);
     }
 
+    public function testImportAllZeroUuid()
+    {
+        $uuid = Uuid::import('00000000-0000-0000-0000-000000000000');
+        $this->assertInstanceOf('Webpatser\Uuid\Uuid', $uuid);
+        $this->assertEquals('00000000-0000-0000-0000-000000000000', (string) $uuid);
+    }
+
     public function testGenerationOfValidUuid()
     {
         $uuid = Uuid::generate(1);
-        $this->assertRegExp(self::UUID_REGEX, (string)$uuid);
+        $this->assertRegExp(Uuid::VALID_UUID_REGEX, (string)$uuid);
 
         $uuid = Uuid::generate(3, 'example.com', Uuid::NS_DNS);
-        $this->assertRegExp(self::UUID_REGEX, (string)$uuid);
+        $this->assertRegExp(Uuid::VALID_UUID_REGEX, (string)$uuid);
 
         $uuid = Uuid::generate(4);
-        $this->assertRegExp(self::UUID_REGEX, (string)$uuid);
+        $this->assertRegExp(Uuid::VALID_UUID_REGEX, (string)$uuid);
 
         $uuid = Uuid::generate(5, 'example.com', Uuid::NS_DNS);
-        $this->assertRegExp(self::UUID_REGEX, (string)$uuid);
+        $this->assertRegExp(Uuid::VALID_UUID_REGEX, (string)$uuid);
     }
 
     public function testCorrectVersionUuid()

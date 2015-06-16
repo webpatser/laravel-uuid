@@ -27,7 +27,7 @@ class Uuid
     const VAR_RES = 224;
 
     /**
-     * 11000000  Microsoft UUID variant
+     * 11000000  Microsoft GUID variant
      * @var int
      */
     const VAR_MS = 192;
@@ -93,6 +93,16 @@ class Uuid
      * @var string
      */
     const NS_X500 = '6ba7b814-9dad-11d1-80b4-00c04fd430c8';
+
+    /**
+     * @var string
+     */
+    const NS_NIL = '00000000-0000-0000-0000-000000000000';
+
+    /**
+     * @var string
+     */
+    const VALID_UUID_REGEX = '/^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$/';
 
     /**
      * @var string
