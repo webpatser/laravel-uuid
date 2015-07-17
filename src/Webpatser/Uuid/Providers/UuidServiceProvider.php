@@ -14,6 +14,7 @@ class UuidServiceProvider extends ServiceProvider
 	 */
 	public function boot()
 	{
+		$this->loadTranslationsFrom(__DIR__ . '../Lang', '');
 		Validator::extend('uuid', function($attribute, $value, $parameters) {
 			return \Uuid::isValid($value);
 		});
