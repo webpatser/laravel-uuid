@@ -365,6 +365,19 @@ class Uuid
     }
 
     /**
+     * Runs a simple test to see if the passed UUID is a valid one.
+     *
+     * @param string $uuid
+     * @return bool
+     */
+    public static function isValid($uuid)
+    {
+        // Regex taken from Lewie's answer from:
+        // http://stackoverflow.com/questions/1253373/php-check-for-valid-guid
+        return (bool)preg_match("/^(\{)?[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}(?(1)\})$/i", $uuid);
+    }
+
+    /**
      * Get the specified number of random bytes, using openssl_random_pseudo_bytes().
      * Randomness is returned as a string of bytes.
      *

@@ -128,4 +128,16 @@ class UuidTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(Uuid::compare($uuid1, $uuid1));
         $this->assertFalse(Uuid::compare($uuid1, $uuid2));
     }
+
+    public function testUuidValidate()
+    {
+        $invalidUuid = "test";
+        $this->assertFalse(Uuid::isValid($invalidUuid));
+
+        $validUuid = "038311D1-D6EE-4025-9A2B-606D56CACE4E";
+        $this->assertTrue(Uuid::isValid($validUuid));
+
+        $validLowercaseUuid = "a10a3939-4169-48ab-baaa-2e68847466f9";
+        $this->assertTrue(Uuid::isValid($validLowercaseUuid));
+    }
 }

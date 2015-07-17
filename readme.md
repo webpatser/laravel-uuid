@@ -65,6 +65,28 @@ Generate a version 4, truly random, UUID
 Generate a version 5, name-based using SHA-1 hashing, UUID
 
 	Uuid::generate(5,'test', Uuid::NS_DNS);
+
+### UUID Validation
+
+If you enable the service provider, you'll be able to validate UUIDs using Laravel's
+validation libraries (with the `uuid` key in your validation configuration).
+
+To enable the service provider, add the following to the `providers` section of
+`config/app.php`:
+
+	Webpatser\Uuid\Providers\UuidServiceProvider::class,
+
+You'll have to create your own validation message (because it appears Laravel doesn't
+currently support packages having their own validation messages). You can do that by adding
+the following:
+
+	'uuid' => 'The :attribute must be a valid UUID.',
+
+to `resources/lang/en/validation.php`.
+
+You can also do one-off validations using the following:
+
+	Uuid::isValid('d3d29d70-1d25-11e3-8591-034165a3a613');
 	
 ### Some magic features
 
