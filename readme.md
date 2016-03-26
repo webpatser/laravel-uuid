@@ -27,7 +27,7 @@ Run `composer update` to pull down the latest version of Laravel UUID.
 Or install it directly from the command line using
 
 ```shell
-composer require webpatser/laravel-uuid 2.*
+composer require "webpatser/laravel-uuid:2.*"
 ```
 
 For Laravel 4: edit `app/config/app.php` and add the `alias`
