@@ -155,6 +155,19 @@ class Uuid
                 throw new Exception('Selected version is invalid or unsupported.');
         }
     }
+    
+    
+    /**
+     * @param int $ver
+     * @param string $node
+     * @param string $ns
+     * @return Uuid
+     * @throws Exception
+     */
+    public static function generateFromTimeStamp($ver = 1, $timeStamp)
+    {
+        return new static(static::mintTimeFromStrTime($timeStamp));
+    }
 
     /**
      * Generates a Version 1 UUID.
@@ -172,10 +185,61 @@ class Uuid
          * Note that this will never be more accurate than to the microsecond.
          */
         $time = microtime(1) * 10000000 + static::INTERVAL;
-
+        
         // Convert to a string representation
         $time = sprintf("%F", $time);
 
+        //strip decimal point
+        preg_match("/^\d+/", $time, $time);
+
+        // And now to a 64-bit binary representation
+        $time = base_convert($time[0], 10, 16);
+        $time = pack("H*", str_pad($time, 16, "0", STR_PAD_LEFT));
+
+        // Reorder bytes to their proper locations in the UUID
+        $uuid = $time[4] . $time[5] . $time[6] . $time[7] . $time[2] . $time[3] . $time[0] . $time[1];
+
+        // Generate a random clock sequence
+        $uuid .= static::randomBytes(2);
+
+        // set variant
+        $uuid[8] = chr(ord($uuid[8]) & static::CLEAR_VAR | static::VAR_RFC);
+
+        // set version
+        $uuid[6] = chr(ord($uuid[6]) & static::CLEAR_VER | static::VERSION_1);
+
+        // Set the final 'node' parameter, a MAC address
+        if (!is_null($node)) {
+            $node = static::makeBin($node, 6);
+        }
+
+        // If no node was provided or if the node was invalid,
+        //  generate a random MAC address and set the multicast bit
+        if (is_null($node)) {
+            $node = static::randomBytes(6);
+            $node[0] = pack("C", ord($node[0]) | 1);
+        }
+
+        $uuid .= $node;
+
+        return $uuid;
+    }
+    
+    /**
+     * Generates a Version 1 UUID.
+     * These are derived from the time at which they were generated.
+     *
+     * @param string $node
+     * @return string
+     */
+    protected static function mintTimeFromStrTime($timeStamp, $node="")
+    {        
+        
+        $time = $timeStamp * 10000000 + static::INTERVAL;
+        
+        // Convert to a string representation        
+        $time = sprintf("%F", $time);
+       
         //strip decimal point
         preg_match("/^\d+/", $time, $time);
 
