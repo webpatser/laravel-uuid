@@ -225,7 +225,7 @@ class Uuid
 
     /**
      * Trying for php 7 secure random generator, falling back to openSSL and Mcrypt.
-     * If none of the above is foumd, falls back to mt_rand
+     * If none of the above is found, falls back to mt_rand
      * Since laravel 4.* and 5.0 requires Mcrypt and 5.1 requires OpenSSL the fallback should never be used.
      *
      * @throws Exception
