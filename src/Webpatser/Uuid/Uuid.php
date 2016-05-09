@@ -224,7 +224,8 @@ class Uuid
     }
 
     /**
-     * Trying for openSSL and Mcrypt random generators. Fallback to mt_rand
+     * Trying for php 7 secure random generator, falling back to openSSL and Mcrypt.
+     * If none of the above is found, falls back to mt_rand
      * Since laravel 4.* and 5.0 requires Mcrypt and 5.1 requires OpenSSL the fallback should never be used.
      *
      * @throws Exception
@@ -232,7 +233,9 @@ class Uuid
      */
     public static function initRandom()
     {
-        if (function_exists('openssl_random_pseudo_bytes')) {
+        if (function_exists('random_bytes')) {
+            return 'randomPhp7';
+        } elseif (function_exists('openssl_random_pseudo_bytes')) {
             return 'randomOpenSSL';
         } elseif (function_exists('mcrypt_encrypt')) {
             return 'randomMcrypt';
@@ -362,6 +365,19 @@ class Uuid
         } else {
             return false;
         }
+    }
+    
+    /**
+     * Get the specified number of random bytes, using random_bytes().
+     * Randomness is returned as a string of bytes
+     * 
+     * Requires Php 7, or random_compact polyfill
+     * 
+     * @param $bytes
+     * @return mixed
+     */
+    protected static function randomPhp7($bytes) {
+        return random_bytes($bytes);
     }
 
     /**
