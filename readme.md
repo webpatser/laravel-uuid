@@ -18,7 +18,7 @@ For the 1.* branch check the docs [here](https://github.com/webpatser/laravel-uu
 Add `webpatser/laravel-uuid` to `composer.json`.
 
 ```json
-"webpatser/laravel-uuid": "2.*"
+"webpatser/laravel-uuid": "^2.0"
 ```
     
 Run `composer update` to pull down the latest version of Laravel UUID.
