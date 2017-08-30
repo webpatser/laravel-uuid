@@ -3,7 +3,6 @@
 [![Total Downloads](https://poser.pugx.org/webpatser/laravel-uuid/downloads.svg)](https://packagist.org/packages/webpatser/laravel-uuid)
 [![Build Status](https://secure.travis-ci.org/webpatser/laravel-uuid.png?branch=master)](http://travis-ci.org/webpatser/laravel-uuid)
 [![Latest Stable Version](https://poser.pugx.org/webpatser/laravel-uuid/v/stable.svg)](https://packagist.org/packages/webpatser/laravel-uuid)
-[![Latest Unstable Version](https://poser.pugx.org/webpatser/laravel-uuid/v/unstable.svg)](https://packagist.org/packages/webpatser/laravel-uuid)
 
 Laravel package to generate a UUID according to the RFC 4122 standard. Support for version 1, 3, 4 and 5 UUIDs are built-in.
 
@@ -12,7 +11,7 @@ Since Laravel `4.*` and `5.*` both rely on either `OpenSSL` or `Mcrypt`, the pse
 ## What's new in 2.*
 Laravel Uuid is now fully PSR-2, just like Laravel 5.1. Not that much has changed except for UPPERCASING the constants used in Laravel Uuid. Meaning `Uuid::nsDNS` is now `Uuid::NS_DNS` etc. Should be an easy fix.
 
-For the 1.* branch check the docs [here](https://github.com/webpatser/laravel-uuid/tree/1.4)
+For the 1.* branch check the docs [here](https://github.com/webpatser/laravel-uuid/tree/1.5)
 
 ## Installation
 
@@ -30,6 +29,17 @@ Or install it directly from the command line using
 composer require "webpatser/laravel-uuid:2.*"
 ```
 
+In Laravel 5.5 laravel-uuid will install via the new Package Discovery feature
+
+For Laravel <= 5.4: edit `config/app.php` and add the `alias`
+
+```php
+'aliases' => [
+    // ommited
+    'Uuid' => Webpatser\Uuid\Uuid::class,
+]
+```
+
 For Laravel 4: edit `app/config/app.php` and add the `alias`
 
 ```php
@@ -37,15 +47,6 @@ For Laravel 4: edit `app/config/app.php` and add the `alias`
     // ommited
     'Uuid' => 'Webpatser\Uuid\Uuid',
 )
-```
-    
-For Laravel 5: edit `config/app.php` and add the `alias`
-
-```php
-'aliases' => [
-    // ommited
-    'Uuid' => Webpatser\Uuid\Uuid::class,
-]
 ```
 
 ## Basic Usage
