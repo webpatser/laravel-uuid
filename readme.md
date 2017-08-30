@@ -29,6 +29,17 @@ Or install it directly from the command line using
 composer require "webpatser/laravel-uuid:2.*"
 ```
 
+In Laravel 5.5 laravel-uuid will install via the new Package Discovery feature
+
+For Laravel <= 5.4: edit `config/app.php` and add the `alias`
+
+```php
+'aliases' => [
+    // ommited
+    'Uuid' => Webpatser\Uuid\Uuid::class,
+]
+```
+
 For Laravel 4: edit `app/config/app.php` and add the `alias`
 
 ```php
@@ -36,15 +47,6 @@ For Laravel 4: edit `app/config/app.php` and add the `alias`
     // ommited
     'Uuid' => 'Webpatser\Uuid\Uuid',
 )
-```
-    
-For Laravel 5: edit `config/app.php` and add the `alias`
-
-```php
-'aliases' => [
-    // ommited
-    'Uuid' => Webpatser\Uuid\Uuid::class,
-]
 ```
 
 ## Basic Usage
