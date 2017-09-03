@@ -4,6 +4,20 @@ namespace Webpatser\Uuid;
 
 use Exception;
 
+/**
+ * Class Uuid
+ * @package Webpatser\Uuid
+ *
+ * @property string $bytes
+ * @property string $hex
+ * @property string $node
+ * @property string $string
+ * @property string $time
+ * @property string $urn
+ * @property string $variant
+ * @property string $version
+ *
+ */
 class Uuid
 {
     const MD5 = 3;
@@ -98,15 +112,6 @@ class Uuid
      * Regular expression for validation of UUID.
      */
     const VALID_UUID_REGEX = '^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$';
-    
-    protected $bytes;
-    protected $hex;
-    protected $string;
-    protected $urn;
-    protected $version;
-    protected $variant;
-    protected $node;
-    protected $time;
     
     /**
      * @param string $uuid
@@ -220,29 +225,7 @@ class Uuid
      */
     public static function randomBytes($bytes)
     {
-        return call_user_func(array('static', static::initRandom()), $bytes);
-    }
-    
-    /**
-     * Trying for php 7 secure random generator, falling back to openSSL and Mcrypt.
-     * If none of the above is found, falls back to mt_rand
-     * Since laravel 4.* and 5.0 requires Mcrypt and 5.1 requires OpenSSL the fallback should never be used.
-     *
-     * @throws Exception
-     * @return string
-     */
-    public static function initRandom()
-    {
-        if (function_exists('random_bytes')) {
-            return 'randomPhp7';
-        } elseif (function_exists('openssl_random_pseudo_bytes')) {
-            return 'randomOpenSSL';
-        } elseif (function_exists('mcrypt_encrypt')) {
-            return 'randomMcrypt';
-        }
-        
-        // This is not the best randomizer (using mt_rand)...
-        return 'randomTwister';
+        return random_bytes($bytes);
     }
     
     /**
@@ -368,60 +351,6 @@ class Uuid
     }
     
     /**
-     * Get the specified number of random bytes, using random_bytes().
-     * Randomness is returned as a string of bytes
-     *
-     * Requires Php 7, or random_compact polyfill
-     *
-     * @param $bytes
-     * @return mixed
-     */
-    protected static function randomPhp7($bytes) {
-        return random_bytes($bytes);
-    }
-    
-    /**
-     * Get the specified number of random bytes, using openssl_random_pseudo_bytes().
-     * Randomness is returned as a string of bytes.
-     *
-     * @param $bytes
-     * @return mixed
-     */
-    protected static function randomOpenSSL($bytes)
-    {
-        return openssl_random_pseudo_bytes($bytes);
-    }
-    
-    /**
-     * Get the specified number of random bytes, using mcrypt_create_iv().
-     * Randomness is returned as a string of bytes.
-     *
-     * @param $bytes
-     * @return string
-     */
-    protected static function randomMcrypt($bytes)
-    {
-        return mcrypt_create_iv($bytes, MCRYPT_DEV_URANDOM);
-    }
-    
-    /**
-     * Get the specified number of random bytes, using mt_rand().
-     * Randomness is returned as a string of bytes.
-     *
-     * @param integer $bytes
-     * @return string
-     */
-    protected static function randomTwister($bytes)
-    {
-        $rand = "";
-        for ($a = 0; $a < $bytes; $a++) {
-            $rand .= chr(mt_rand(0, 255));
-        }
-        
-        return $rand;
-    }
-    
-    /**
      * @param string $var
      * @return string|string|number|number|number|number|number|NULL|number|NULL|NULL
      */
@@ -434,14 +363,32 @@ class Uuid
             case "hex":
                 return bin2hex($this->bytes);
                 break;
+            case "node":
+                if (ord($this->bytes[6]) >> 4 == 1) {
+                    return bin2hex(substr($this->bytes, 10));
+                } else {
+                    return null;
+                }
+                break;
             case "string":
                 return $this->__toString();
                 break;
+            case "time":
+                if (ord($this->bytes[6]) >> 4 == 1) {
+                    // Restore contiguous big-endian byte order
+                    $time = bin2hex($this->bytes[6] . $this->bytes[7] . $this->bytes[4] . $this->bytes[5] .
+                        $this->bytes[0] . $this->bytes[1] . $this->bytes[2] . $this->bytes[3]);
+                    // Clear version flag
+                    $time[0] = "0";
+            
+                    // Do some reverse arithmetic to get a Unix timestamp
+                    return (hexdec($time) - static::INTERVAL) / 10000000;
+                } else {
+                    return null;
+                }
+                break;
             case "urn":
                 return "urn:uuid:" . $this->__toString();
-                break;
-            case "version":
-                return ord($this->bytes[6]) >> 4;
                 break;
             case "variant":
                 $byte = ord($this->bytes[8]);
@@ -455,26 +402,8 @@ class Uuid
                     return 0;
                 }
                 break;
-            case "node":
-                if (ord($this->bytes[6]) >> 4 == 1) {
-                    return bin2hex(substr($this->bytes, 10));
-                } else {
-                    return null;
-                }
-                break;
-            case "time":
-                if (ord($this->bytes[6]) >> 4 == 1) {
-                    // Restore contiguous big-endian byte order
-                    $time = bin2hex($this->bytes[6] . $this->bytes[7] . $this->bytes[4] . $this->bytes[5] .
-                        $this->bytes[0] . $this->bytes[1] . $this->bytes[2] . $this->bytes[3]);
-                    // Clear version flag
-                    $time[0] = "0";
-                    
-                    // Do some reverse arithmetic to get a Unix timestamp
-                    return (hexdec($time) - static::INTERVAL) / 10000000;
-                } else {
-                    return null;
-                }
+            case "version":
+                return ord($this->bytes[6]) >> 4;
                 break;
             default:
                 return null;

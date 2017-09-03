@@ -70,7 +70,7 @@ class UuidTest extends TestCase
     
         $uuid = Uuid::generate(1);
         $this->assertTrue(Uuid::validate($uuid->urn));
-    
+        
         $uuid = Uuid::generate(3, 'example.com', Uuid::NS_DNS);
         $this->assertTrue(Uuid::validate($uuid->urn));
     
