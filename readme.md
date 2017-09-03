@@ -116,6 +116,51 @@ $uuid = Uuid::generate(4);
 dd($uuid->version);
 ````
 
+## Eloquent uuid generation
+
+If you want an UUID magically be generated in your Laravel models, just add this boot function to your Model.
+
+```php
+/**
+ *  Setup model event hooks
+ */
+public static function boot()
+{
+    parent::boot();
+    self::creating(function ($model) {
+        $model->uuid = (string) Uuid::generate(4);
+    });
+}
+```
+This will generate a version 4 UUID when creating a new record.
+
+## Model binding to uuid instead of primary key
+
+If  you want to use the UUID in URLs instead of the primary key, you can add this to your model (where 'uuid' is the column name to store the UUID)
+
+```php
+/**
+ * Get the route key for the model.
+ *
+ * @return string
+ */
+public function getRouteKeyName()
+{
+    return 'uuid';
+}
+```
+
+When you inject the model on your resource controller methods you get the correct record
+
+```php
+public function edit(Model $model)
+{
+   return view('someview.edit')->with([
+        'model' => $model,
+    ]);
+}
+```
+
 ## Notes
 
 Full details on the UUID specification can be found [here](http://tools.ietf.org/html/rfc4122)
