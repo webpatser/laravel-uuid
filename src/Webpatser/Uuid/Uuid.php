@@ -380,9 +380,9 @@ class Uuid
     /**
      * Get the specified number of random bytes, using random_bytes().
      * Randomness is returned as a string of bytes
-     * 
+     *
      * Requires Php 7, or random_compact polyfill
-     * 
+     *
      * @param $bytes
      * @return mixed
      */
