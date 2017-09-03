@@ -14,7 +14,7 @@
 		"MIT"
 	],
 	"require" : {
-		"php" : ">=5.3.0"
+		"php" : "^7.0"
 	},
     "require-dev" : {
 		"fzaninotto/faker": "~1.4",
