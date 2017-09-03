@@ -58,7 +58,13 @@ To quickly generate a UUID just do
 Uuid::generate()
 ```
 	
-This will generate a version 1 with a random ganerated MAC address.
+This will generate a version 1 Uuid `object` with a random ganerated MAC address.
+
+To echo out the generated Uuid cast it to a string
+
+```php
+(string) Uuid::generate()
+```
 
 ## Advanced Usage
 
