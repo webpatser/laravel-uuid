@@ -29,9 +29,6 @@
 		"source" : "https://github.com/webpatser/uuid",
 		"issues" : "https://github.com/webpatser/uuid/issues"
 	},
-	"suggest" : {
-		"paragonie/random_compat": "A random_bytes Php 5.x polyfill."
-	},
     "extra": {
         "laravel": {
 			"providers": [
