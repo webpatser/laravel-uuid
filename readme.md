@@ -24,6 +24,14 @@ In Laravel 5.5 laravel-uuid will install via the new package discovery feature s
 composer require "webpatser/laravel-uuid:^3.0"
 ```
 
+after installation you should see
+
+```shell
+Discovered Package: webpatser/laravel-uuid
+```
+
+and you are ready to go
+
 ## Basic Usage
 
 To quickly generate a UUID just do
