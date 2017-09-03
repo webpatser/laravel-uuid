@@ -1,22 +1,16 @@
 <?xml version="1.0"?>
-<phpunit
-        backupGlobals="false"
-        backupStaticAttributes="false"
-        bootstrap="tests/bootstrap.php"
-        convertErrorsToExceptions="true"
-        convertNoticesToExceptions="true"
-        convertWarningsToExceptions="true"
-        processIsolation="false"
-        stopOnError="false"
-        stopOnFailure="false"
-        stopOnIncomplete="false"
-        stopOnSkipped="false"
-        syntaxCheck="false"
-        verbose="true"
-        >
+<phpunit backupGlobals="false"
+         backupStaticAttributes="false"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="false">
     <filter>
-        <whitelist>
-            <directory suffix=".php">../src/</directory>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">./src</directory>
         </whitelist>
     </filter>
     <testsuites>
@@ -24,4 +18,7 @@
             <directory>./tests/</directory>
         </testsuite>
     </testsuites>
+    <logging>
+        <log type="coverage-clover" target="clover.xml"/>
+    </logging>
 </phpunit>
