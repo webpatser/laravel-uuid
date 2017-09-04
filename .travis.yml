@@ -1,5 +1,7 @@
 language: php
 
+group: edge
+
 matrix:
   fast_finish: true
   include:
