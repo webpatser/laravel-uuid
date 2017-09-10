@@ -8,14 +8,14 @@ Laravel package to generate and to validate a universally unique identifier (UUI
 
 Since Laravel `4.*` and `5.*` both rely on either `OpenSSL` or `Mcrypt`, the pseudo random byte generator now tries to use one of them. If both cannot be used (not a Laravel project?), the 'less random' `mt_rand()` function is used.
 
-## Laravel 5.5?
+## What laravel version do you use?
 
-Use laravel-uuid [version 3.0 ](https://github.com/webpatser/laravel-uuid)
+For Laravel 5.5 use laravel-uuid [version 3.0 ](https://github.com/webpatser/laravel-uuid)
+
+For Laravel 4.* use laravel-uuid [version 1.0](https://github.com/webpatser/laravel-uuid/tree/1.0)
 
 ## What's new in 2.*
 Laravel Uuid is now fully PSR-2, just like Laravel 5.1. Not that much has changed except for UPPERCASING the constants used in Laravel Uuid. Meaning `Uuid::nsDNS` is now `Uuid::NS_DNS` etc. Should be an easy fix.
-
-For the 1.* branch check the docs [here](https://github.com/webpatser/laravel-uuid/tree/1.5)
 
 ## Installation
 
