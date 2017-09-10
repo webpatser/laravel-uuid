@@ -4,9 +4,13 @@
 [![Build Status](https://secure.travis-ci.org/webpatser/laravel-uuid.png?branch=master)](http://travis-ci.org/webpatser/laravel-uuid)
 [![Latest Stable Version](https://poser.pugx.org/webpatser/laravel-uuid/v/stable.svg)](https://packagist.org/packages/webpatser/laravel-uuid)
 
-Laravel package to generate a UUID according to the RFC 4122 standard. Support for version 1, 3, 4 and 5 UUIDs are built-in.
+Laravel package to generate and to validate a universally unique identifier (UUID)  according to the RFC 4122 standard. Support for version 1, 3, 4 and 5 UUIDs are built-in.
 
 Since Laravel `4.*` and `5.*` both rely on either `OpenSSL` or `Mcrypt`, the pseudo random byte generator now tries to use one of them. If both cannot be used (not a Laravel project?), the 'less random' `mt_rand()` function is used.
+
+## Laravel 5.5?
+
+Use laravel-uuid [version 3.0 ](https://github.com/webpatser/laravel-uuid)
 
 ## What's new in 2.*
 Laravel Uuid is now fully PSR-2, just like Laravel 5.1. Not that much has changed except for UPPERCASING the constants used in Laravel Uuid. Meaning `Uuid::nsDNS` is now `Uuid::NS_DNS` etc. Should be an easy fix.
@@ -31,11 +35,19 @@ composer require "webpatser/laravel-uuid:2.*"
 
 In Laravel 5.5 laravel-uuid will install via the new Package Discovery feature
 
-For Laravel <= 5.4: edit `config/app.php` and add the `alias`
+For Laravel <= 5.4: edit `config/app.php` and add the `provider` and `alias`
 
 ```php
+
+'providers' => [
+    // ommited
+    
+    \Webpatser\Uuid\UuidServiceProvider::class,
+]
+    
 'aliases' => [
     // ommited
+    
     'Uuid' => Webpatser\Uuid\Uuid::class,
 ]
 ```
@@ -107,7 +119,21 @@ Extract the version of an UUID
 ```php
 $uuid = Uuid::generate(4);
 dd($uuid->version);
-````
+```
+
+## Validation
+
+Just use like any other Laravel validator.
+
+``'uuid-field' => 'uuid'``
+
+Or create a validator from scratch. In the example an Uuid object in validated. You can also validate strings `$uuid->string`, the URN `$uuid->urn` or the binary value `$uuid->bytes`
+
+```php
+$uuid = Uuid::generate();
+$validator = Validator::make(['uuid' => $uuid], ['uuid' => 'uuid']);
+dd($validator->passes());
+```
 
 ## Notes
 
