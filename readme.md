@@ -5,9 +5,13 @@
 [![Latest Stable Version](https://poser.pugx.org/webpatser/laravel-uuid/v/stable.svg)](https://packagist.org/packages/webpatser/laravel-uuid)
 [![Latest Unstable Version](https://poser.pugx.org/webpatser/laravel-uuid/v/unstable.svg)](https://packagist.org/packages/webpatser/laravel-uuid)
 
+Laravel package to generate and to validate a universally unique identifier (UUID)  according to the RFC 4122 standard. Support for version 1, 3, 4 and 5 UUIDs are built-in.
 
-Laravel package to generate a UUID according to the RFC 4122 standard. Support for version 1, 3, 4 and 5 UUIDs are built-in.
+## What laravel version do you use?
 
+For Laravel 5.5 use laravel-uuid [version 3.0 ](https://github.com/webpatser/laravel-uuid)
+
+For Laravel 5.0, 5.1, 5.2, 5.3 and 5.4 use laravel-uuid [version 2](https://github.com/webpatser/laravel-uuid/tree/2.0)
 
 ## Installation
 
