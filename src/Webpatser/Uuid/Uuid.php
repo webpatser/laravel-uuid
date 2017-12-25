@@ -12,6 +12,7 @@ use Exception;
  * @property string $hex
  * @property string $node
  * @property string $string
+ * @property string $uuid_ordered
  * @property string $time
  * @property string $urn
  * @property string $variant
@@ -131,6 +132,11 @@ class Uuid
             bin2hex(substr($uuid, 6, 2)) . "-" .
             bin2hex(substr($uuid, 8, 2)) . "-" .
             bin2hex(substr($uuid, 10, 6));
+
+        // Store UUID in an optimized way
+        $this->uuid_ordered = bin2hex(substr($uuid, 6, 2)) .
+            bin2hex(substr($uuid, 4, 2)) .
+            bin2hex(substr($uuid, 0, 4));
     }
     
     
@@ -373,6 +379,9 @@ class Uuid
             case "string":
                 return $this->__toString();
                 break;
+            case "uuid_ordered":
+                return $this->__toUuidOrdered();
+                break;
             case "time":
                 if (ord($this->bytes[6]) >> 4 == 1) {
                     // Restore contiguous big-endian byte order
@@ -419,6 +428,16 @@ class Uuid
     public function __toString()
     {
         return $this->string;
+    }
+
+    /**
+     * Return the UUID ORDERED
+     *
+     * @return uuid ordered
+     */
+    public function __toUuidOrdered()
+    {
+        return $this->uuid_ordered;
     }
     
     /**
