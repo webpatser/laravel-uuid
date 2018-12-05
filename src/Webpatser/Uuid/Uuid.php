@@ -3,6 +3,8 @@
 namespace Webpatser\Uuid;
 
 use Exception;
+use Illuminate\Support\Facades\Facade;
+
 
 /**
  * Class Uuid
@@ -19,7 +21,7 @@ use Exception;
  * @property string $version
  *
  */
-class Uuid
+class Uuid extends Facade
 {
     const MD5 = 3;
     const SHA1 = 5;
@@ -450,5 +452,13 @@ class Uuid
     public static function validate($uuid)
     {
         return (boolean) preg_match('~' . static::VALID_UUID_REGEX . '~', static::import($uuid)->string);
+    }
+
+    /**
+     * @return string
+     */
+    protected static function getFacadeAccessor()
+    {
+        return 'uuid';
     }
 }
