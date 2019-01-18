@@ -1,23 +1,22 @@
 language: php
 
-group: edge
+php:
+  - 7.0
+  - 7.1
+  - 7.2
+  - 7.3
 
-matrix:
-  fast_finish: true
-  include:
-    - php: 7.0
-    - php: 7.1
-    - php: 7.2
+env:
+  matrix:
+    - COMPOSER_FLAGS="--prefer-lowest"
+    - COMPOSER_FLAGS=""
 
-sudo: false
-
-before_install:
+before_script:
   - travis_retry composer self-update
+  - travis_wait composer update ${COMPOSER_FLAGS} --no-interaction --prefer-source
 
-install:
-  - travis_retry composer update --prefer-dist --no-interaction --prefer-stable --no-suggest
-
-script: vendor/bin/phpunit --coverage-text
+script:
+  - vendor/bin/phpunit --coverage-text
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

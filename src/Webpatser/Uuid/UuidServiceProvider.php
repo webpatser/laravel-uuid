@@ -17,5 +17,7 @@ class UuidServiceProvider extends ServiceProvider
         Validator::extend('uuid', function ($attribute, $value, $parameters, $validator) {
             return Uuid::validate($value);
         });
+
+        $this->app->alias(Uuid::class, 'uuid');
     }
 }
