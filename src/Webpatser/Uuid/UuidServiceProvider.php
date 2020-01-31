@@ -14,8 +14,11 @@ class UuidServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Validator::extend('uuid', function ($attribute, $value, $parameters, $validator) {
-            return Uuid::validate($value);
-        });
+        try {
+            Validator::extend('uuid', function ($attribute, $value, $parameters, $validator) {
+                return Uuid::validate($value);
+            });
+        } catch (\Exception $e) {
+        }
     }
 }
