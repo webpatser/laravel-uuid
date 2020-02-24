@@ -18,4 +18,6 @@ class UuidServiceProvider extends ServiceProvider
             return Uuid::validate($value);
         });
     }
+    
+    public function register() {}
 }
