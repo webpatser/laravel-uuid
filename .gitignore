@@ -4,3 +4,4 @@ composer.lock
 .DS_Store
 clover.xml
 .idea
+.phpunit.result.cache
