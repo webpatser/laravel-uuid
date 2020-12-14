@@ -8,6 +8,11 @@
 
 Laravel package to generate and to validate a universally unique identifier (UUID) according to the RFC 4122 standard. Support for version 1, 3, 4 and 5 UUIDs are built-in.
 
+## What's new in 4.*
+Laravel-uuid is now ready for Laravel 8. It has the same requirements so that means PHP 7.3 or PHP 8. Laravel package auto-discovery is enabled, and you can now use the UUID validation. Validation examples are below and in the tests.
+
+For older Laravel or PHP versions use older versions; see below...
+
 ## What's new in 3.*
 Laravel-uuid is now refactored for Laravel 5.5. It has the same requirements so that means PHP 7. Laravel package auto-discovery is enabled, and you can now use the UUID validation. Validation examples are below and in the tests. 
 
