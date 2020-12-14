@@ -14,15 +14,20 @@
 		"MIT"
 	],
 	"require" : {
-		"php" : "^7.0"
+		"php" : "^7.0|^8.0"
 	},
     "require-dev" : {
-		"fzaninotto/faker": "~1.4",
-		"phpunit/phpunit": "~6.0"
+		"fakerphp/faker": "~1.12",
+		"phpunit/phpunit": "~9.3.8"
     },
 	"autoload" : {
 		"psr-4" : {
 			"Webpatser\\Uuid\\": "src/Webpatser/Uuid/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Tests\\": "tests/"
 		}
 	},
 	"support" : {
