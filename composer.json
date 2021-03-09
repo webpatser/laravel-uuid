@@ -14,18 +14,20 @@
 		"MIT"
 	],
 	"require" : {
-		"php" : "^7.0",
-		"illuminate/auth": "~5.2.0|~5.3.0|~5.4.0|~5.5.0|~5.6.0|~5.7.0",
-		"illuminate/contracts": "~5.2.0|~5.3.0|~5.4.0|~5.5.0|~5.6.0|~5.7.0",
-		"illuminate/support": "~5.2.0|~5.3.0|~5.4.0|~5.5.0|~5.6.0|~5.7.0"
+		"php" : "^7.0|^8.0"
 	},
     "require-dev" : {
-		"fzaninotto/faker": "~1.4",
-		"phpunit/phpunit": "^6.0|^7.0"
+		"fakerphp/faker": "^1.9.1",
+		"phpunit/phpunit": "^9.3.3"
     },
 	"autoload" : {
 		"psr-4" : {
-			"Webpatser\\Uuid\\" : "src/Webpatser/Uuid"
+			"Webpatser\\Uuid\\": "src/Webpatser/Uuid/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Tests\\": "tests/"
 		}
 	},
 	"support" : {

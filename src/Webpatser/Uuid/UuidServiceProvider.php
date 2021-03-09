@@ -20,4 +20,13 @@ class UuidServiceProvider extends ServiceProvider
 
         $this->app->alias(Uuid::class, 'uuid');
     }
+    
+    /**
+     * Register the service provider.
+     *
+     */
+    public function register()
+    {
+        //
+    }
 }

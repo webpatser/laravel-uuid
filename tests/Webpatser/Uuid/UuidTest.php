@@ -30,16 +30,16 @@ class UuidTest extends TestCase
     public function testGenerationOfValidUuidViaRegex()
     {
         $uuid = Uuid::generate(1);
-        $this->assertRegExp('~' . Uuid::VALID_UUID_REGEX . '~', (string)$uuid);
+        $this->assertMatchesRegularExpression('~' . Uuid::VALID_UUID_REGEX . '~', (string)$uuid);
 
         $uuid = Uuid::generate(3, 'example.com', Uuid::NS_DNS);
-        $this->assertRegExp('~' . Uuid::VALID_UUID_REGEX . '~', (string)$uuid);
+        $this->assertMatchesRegularExpression('~' . Uuid::VALID_UUID_REGEX . '~', (string)$uuid);
 
         $uuid = Uuid::generate(4);
-        $this->assertRegExp('~' . Uuid::VALID_UUID_REGEX . '~', (string)$uuid);
+        $this->assertMatchesRegularExpression('~' . Uuid::VALID_UUID_REGEX . '~', (string)$uuid);
 
         $uuid = Uuid::generate(5, 'example.com', Uuid::NS_DNS);
-        $this->assertRegExp('~' . Uuid::VALID_UUID_REGEX . '~', (string)$uuid);
+        $this->assertMatchesRegularExpression('~' . Uuid::VALID_UUID_REGEX . '~', (string)$uuid);
     }
 
     public function testGenerationOfValidUuidViaValidator()
