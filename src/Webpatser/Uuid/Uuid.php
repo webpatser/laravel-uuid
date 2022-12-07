@@ -113,7 +113,11 @@ class Uuid
      * Regular expression for validation of UUID.
      */
     const VALID_UUID_REGEX = '^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$';
-    
+
+    protected string $bytes;
+    protected string $string;
+    protected string $uuid_ordered;
+
     /**
      * @param string $uuid
      * @throws Exception
