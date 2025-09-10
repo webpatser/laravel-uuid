@@ -14,7 +14,7 @@
 		"MIT"
 	],
 	"require" : {
-		"php" : "^8.0"
+		"php" : "^8.2"
 	},
     "require-dev" : {
 		"fakerphp/faker": "^1.24",

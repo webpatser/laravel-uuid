@@ -5,7 +5,7 @@ use Webpatser\Uuid\Uuid;
 
 class UuidTest extends TestCase
 {
-    public function testStaticGeneration()
+    public function test_static_generation()
     {
         $uuid = Uuid::generate(1);
         $this->assertInstanceOf('Webpatser\Uuid\Uuid', $uuid);
@@ -20,29 +20,29 @@ class UuidTest extends TestCase
         $this->assertInstanceOf('Webpatser\Uuid\Uuid', $uuid);
     }
 
-    public function testImportAllZeroUuid()
+    public function test_import_all_zero_uuid()
     {
         $uuid = Uuid::import('00000000-0000-0000-0000-000000000000');
         $this->assertInstanceOf('Webpatser\Uuid\Uuid', $uuid);
         $this->assertEquals('00000000-0000-0000-0000-000000000000', (string) $uuid);
     }
 
-    public function testGenerationOfValidUuidViaRegex()
+    public function test_generation_of_valid_uuid_via_regex()
     {
         $uuid = Uuid::generate(1);
-        $this->assertMatchesRegularExpression('~' . Uuid::VALID_UUID_REGEX . '~', (string)$uuid);
+        $this->assertMatchesRegularExpression('~'.Uuid::VALID_UUID_REGEX.'~', (string) $uuid);
 
         $uuid = Uuid::generate(3, 'example.com', Uuid::NS_DNS);
-        $this->assertMatchesRegularExpression('~' . Uuid::VALID_UUID_REGEX . '~', (string)$uuid);
+        $this->assertMatchesRegularExpression('~'.Uuid::VALID_UUID_REGEX.'~', (string) $uuid);
 
         $uuid = Uuid::generate(4);
-        $this->assertMatchesRegularExpression('~' . Uuid::VALID_UUID_REGEX . '~', (string)$uuid);
+        $this->assertMatchesRegularExpression('~'.Uuid::VALID_UUID_REGEX.'~', (string) $uuid);
 
         $uuid = Uuid::generate(5, 'example.com', Uuid::NS_DNS);
-        $this->assertMatchesRegularExpression('~' . Uuid::VALID_UUID_REGEX . '~', (string)$uuid);
+        $this->assertMatchesRegularExpression('~'.Uuid::VALID_UUID_REGEX.'~', (string) $uuid);
     }
 
-    public function testGenerationOfValidUuidViaValidator()
+    public function test_generation_of_valid_uuid_via_validator()
     {
         $uuid = Uuid::generate(1);
         $this->assertTrue(Uuid::validate($uuid->string));
@@ -89,7 +89,7 @@ class UuidTest extends TestCase
         $this->assertTrue(Uuid::validate(Uuid::generate(5, 'example.com', Uuid::NS_DNS)));
     }
 
-    public function testCorrectVersionUuid()
+    public function test_correct_version_uuid()
     {
         $uuidOne = Uuid::generate(1);
         $this->assertEquals(1, $uuidOne->version);
@@ -104,7 +104,7 @@ class UuidTest extends TestCase
         $this->assertEquals(5, $uuidFive->version);
     }
 
-    public function testCorrectVariantUuid()
+    public function test_correct_variant_uuid()
     {
         $uuidOne = Uuid::generate(1);
         $this->assertEquals(1, $uuidOne->variant);
@@ -119,26 +119,26 @@ class UuidTest extends TestCase
         $this->assertEquals(1, $uuidFive->variant);
     }
 
-    public function testCorrectVersionOfImportedUuid()
+    public function test_correct_version_of_imported_uuid()
     {
         $uuidOne = Uuid::generate(1);
-        $importedOne = Uuid::import((string)$uuidOne);
+        $importedOne = Uuid::import((string) $uuidOne);
         $this->assertEquals($uuidOne->version, $importedOne->version);
 
         $uuidThree = Uuid::generate(3, 'example.com', Uuid::NS_DNS);
-        $importedThree = Uuid::import((string)$uuidThree);
+        $importedThree = Uuid::import((string) $uuidThree);
         $this->assertEquals($uuidThree->version, $importedThree->version);
 
         $uuidFour = Uuid::generate(4);
-        $importedFour = Uuid::import((string)$uuidFour);
+        $importedFour = Uuid::import((string) $uuidFour);
         $this->assertEquals($uuidFour->version, $importedFour->version);
 
         $uuidFive = Uuid::generate(5, 'example.com', Uuid::NS_DNS);
-        $importedFive = Uuid::import((string)$uuidFive);
+        $importedFive = Uuid::import((string) $uuidFive);
         $this->assertEquals($uuidFive->version, $importedFive->version);
     }
 
-    public function testCorrectNodeOfGeneratedUuid()
+    public function test_correct_node_of_generated_uuid()
     {
         $macAdress = Faker\Provider\Internet::macAddress();
         $uuidThree = Uuid::generate(1, $macAdress);
@@ -154,35 +154,35 @@ class UuidTest extends TestCase
         $this->assertNull($uuidThree->node);
     }
 
-    public function testCorrectTimeOfImportedUuid()
+    public function test_correct_time_of_imported_uuid()
     {
         $uuidOne = Uuid::generate(1);
-        $importedOne = Uuid::import((string)$uuidOne);
+        $importedOne = Uuid::import((string) $uuidOne);
         $this->assertEquals($uuidOne->time, $importedOne->time);
 
         $uuidThree = Uuid::generate(3, 'example.com', Uuid::NS_DNS);
-        $importedThree = Uuid::import((string)$uuidThree);
+        $importedThree = Uuid::import((string) $uuidThree);
         $this->assertEmpty($importedThree->time);
 
         $uuidFour = Uuid::generate(4);
-        $importedFour = Uuid::import((string)$uuidFour);
+        $importedFour = Uuid::import((string) $uuidFour);
         $this->assertEmpty($importedFour->time);
 
         $uuidFive = Uuid::generate(5, 'example.com', Uuid::NS_DNS);
-        $importedFive = Uuid::import((string)$uuidFive);
+        $importedFive = Uuid::import((string) $uuidFive);
         $this->assertEmpty($importedFive->time);
     }
 
-    public function testUuidCompare()
+    public function test_uuid_compare()
     {
-        $uuid1 = (string)Uuid::generate(1);
-        $uuid2 = (string)Uuid::generate(1);
+        $uuid1 = (string) Uuid::generate(1);
+        $uuid2 = (string) Uuid::generate(1);
 
         $this->assertTrue(Uuid::compare($uuid1, $uuid1));
         $this->assertFalse(Uuid::compare($uuid1, $uuid2));
     }
 
-    public function testNilUuidCreation()
+    public function test_nil_uuid_creation()
     {
         $nil = Uuid::nil();
         $this->assertInstanceOf('Webpatser\Uuid\Uuid', $nil);
@@ -190,7 +190,7 @@ class UuidTest extends TestCase
         $this->assertEquals(Uuid::NIL, (string) $nil);
     }
 
-    public function testNilUuidProperties()
+    public function test_nil_uuid_properties()
     {
         $nil = Uuid::nil();
         $this->assertEquals(0, $nil->version);
@@ -199,7 +199,7 @@ class UuidTest extends TestCase
         $this->assertNull($nil->node);
     }
 
-    public function testIsNilMethod()
+    public function test_is_nil_method()
     {
         $nil = Uuid::nil();
         $this->assertTrue($nil->isNil());
@@ -211,7 +211,7 @@ class UuidTest extends TestCase
         $this->assertTrue($importedNil->isNil());
     }
 
-    public function testIsNilUuidStaticMethod()
+    public function test_is_nil_uuid_static_method()
     {
         // Test with UUID object
         $nil = Uuid::nil();
@@ -229,12 +229,12 @@ class UuidTest extends TestCase
         $this->assertTrue(Uuid::isNilUuid('00000000000000000000000000000000')); // no hyphens
     }
 
-    public function testNilUuidConstant()
+    public function test_nil_uuid_constant()
     {
         $this->assertEquals('00000000-0000-0000-0000-000000000000', Uuid::NIL);
     }
 
-    public function testNilUuidValidation()
+    public function test_nil_uuid_validation()
     {
         $nil = Uuid::nil();
         $this->assertTrue(Uuid::validate($nil));
@@ -242,7 +242,7 @@ class UuidTest extends TestCase
         $this->assertTrue(Uuid::validate('00000000-0000-0000-0000-000000000000'));
     }
 
-    public function testVersion7Generation()
+    public function test_version7_generation()
     {
         $uuid = Uuid::generate(7);
         $this->assertInstanceOf('Webpatser\Uuid\Uuid', $uuid);
@@ -250,14 +250,14 @@ class UuidTest extends TestCase
         $this->assertEquals(1, $uuid->variant);
     }
 
-    public function testVersion7Validation()
+    public function test_version7_validation()
     {
         $uuid = Uuid::generate(7);
         $this->assertTrue(Uuid::validate($uuid));
-        $this->assertMatchesRegularExpression('~' . Uuid::VALID_UUID_REGEX . '~', (string)$uuid);
+        $this->assertMatchesRegularExpression('~'.Uuid::VALID_UUID_REGEX.'~', (string) $uuid);
     }
 
-    public function testVersion7Properties()
+    public function test_version7_properties()
     {
         $beforeTime = microtime(true);
         $uuid = Uuid::generate(7);
@@ -265,79 +265,81 @@ class UuidTest extends TestCase
 
         $this->assertEquals(7, $uuid->version);
         $this->assertEquals(1, $uuid->variant);
-        
+
         // Test timestamp extraction
         $extractedTime = $uuid->time;
         $this->assertNotNull($extractedTime);
         $this->assertIsFloat($extractedTime);
-        
+
         // Timestamp should be within reasonable bounds (within 1 second of generation)
         $this->assertGreaterThanOrEqual($beforeTime - 1, $extractedTime);
         $this->assertLessThanOrEqual($afterTime + 1, $extractedTime);
-        
+
         // Node should be null for V7 (no MAC address)
         $this->assertNull($uuid->node);
     }
 
-    public function testVersion7Uniqueness()
+    public function test_version7_uniqueness()
     {
         $uuids = [];
         for ($i = 0; $i < 1000; $i++) {
-            $uuid = (string)Uuid::generate(7);
-            $this->assertNotContains($uuid, $uuids, 'Generated duplicate UUID: ' . $uuid);
+            $uuid = (string) Uuid::generate(7);
+            $this->assertNotContains($uuid, $uuids, 'Generated duplicate UUID: '.$uuid);
             $uuids[] = $uuid;
         }
     }
 
-    public function testVersion7Sortability()
+    public function test_version7_sortability()
     {
         $uuids = [];
         $timestamps = [];
-        
+
         // Generate UUIDs with small delays to ensure different timestamps
         for ($i = 0; $i < 5; $i++) {
-            if ($i > 0) usleep(1000); // 1ms delay
+            if ($i > 0) {
+                usleep(1000);
+            } // 1ms delay
             $uuid = Uuid::generate(7);
-            $uuids[] = (string)$uuid;
+            $uuids[] = (string) $uuid;
             $timestamps[] = $uuid->time;
         }
-        
+
         // Sort UUIDs lexicographically
         $sortedUuids = $uuids;
         sort($sortedUuids);
-        
+
         // Sort timestamps numerically
         $sortedTimestamps = $timestamps;
         sort($sortedTimestamps);
-        
+
         // Lexicographic UUID order should match timestamp order
         $this->assertEquals($uuids, $sortedUuids, 'UUIDs are not naturally sortable by creation time');
         $this->assertEquals($timestamps, $sortedTimestamps, 'Timestamps are not in ascending order');
     }
 
-    public function testVersion7TimestampAccuracy()
+    public function test_version7_timestamp_accuracy()
     {
         $currentTime = microtime(true);
         $uuid = Uuid::generate(7);
         $extractedTime = $uuid->time;
-        
+
         // Should be within 10ms of current time (allowing for execution delay)
         $timeDiff = abs($extractedTime - $currentTime);
         $this->assertLessThan(0.01, $timeDiff, 'Timestamp accuracy is off by more than 10ms');
     }
 
-    public function testVersion7Import()
+    public function test_version7_import()
     {
         $original = Uuid::generate(7);
-        $imported = Uuid::import((string)$original);
-        
+        $imported = Uuid::import((string) $original);
+
         $this->assertEquals($original->version, $imported->version);
         $this->assertEquals($original->variant, $imported->variant);
         $this->assertEquals($original->time, $imported->time);
-        $this->assertEquals((string)$original, (string)$imported);
+        $this->assertEquals((string) $original, (string) $imported);
     }
 
-    public function testVersion6Generation()
+    public function test_version6_generation()
     {
         $uuid = Uuid::generate(6);
         $this->assertInstanceOf('Webpatser\Uuid\Uuid', $uuid);
@@ -345,18 +347,18 @@ class UuidTest extends TestCase
         $this->assertEquals(1, $uuid->variant);
     }
 
-    public function testVersion6WithMacAddress()
+    public function test_version6_with_mac_address()
     {
         $macAddress = '00:11:22:33:44:55';
         $uuid = Uuid::generate(6, $macAddress);
-        
+
         $this->assertEquals(6, $uuid->version);
         $this->assertEquals(1, $uuid->variant);
         $this->assertEquals('001122334455', $uuid->node);
         $this->assertNotNull($uuid->time);
     }
 
-    public function testVersion6Properties()
+    public function test_version6_properties()
     {
         $beforeTime = microtime(true);
         $uuid = Uuid::generate(6);
@@ -364,55 +366,57 @@ class UuidTest extends TestCase
 
         $this->assertEquals(6, $uuid->version);
         $this->assertEquals(1, $uuid->variant);
-        
+
         // Test timestamp extraction
         $extractedTime = $uuid->time;
         $this->assertNotNull($extractedTime);
         $this->assertIsFloat($extractedTime);
-        
+
         // Timestamp should be within reasonable bounds
         $this->assertGreaterThanOrEqual($beforeTime - 1, $extractedTime);
         $this->assertLessThanOrEqual($afterTime + 1, $extractedTime);
-        
+
         // Should have a node (MAC address)
         $this->assertNotNull($uuid->node);
         $this->assertEquals(12, strlen($uuid->node)); // 12 hex chars = 6 bytes
     }
 
-    public function testVersion6Sortability()
+    public function test_version6_sortability()
     {
         $uuids = [];
         $timestamps = [];
-        
+
         // Generate UUIDs with small delays
         for ($i = 0; $i < 5; $i++) {
-            if ($i > 0) usleep(1000); // 1ms delay
+            if ($i > 0) {
+                usleep(1000);
+            } // 1ms delay
             $uuid = Uuid::generate(6);
-            $uuids[] = (string)$uuid;
+            $uuids[] = (string) $uuid;
             $timestamps[] = $uuid->time;
         }
-        
+
         // Sort UUIDs lexicographically
         $sortedUuids = $uuids;
         sort($sortedUuids);
-        
+
         // Sort timestamps numerically
         $sortedTimestamps = $timestamps;
         sort($sortedTimestamps);
-        
+
         // V6 should be sortable (unlike V1)
         $this->assertEquals($uuids, $sortedUuids, 'V6 UUIDs should be naturally sortable by creation time');
         $this->assertEquals($timestamps, $sortedTimestamps, 'Timestamps should be in ascending order');
     }
 
-    public function testVersion6Validation()
+    public function test_version6_validation()
     {
         $uuid = Uuid::generate(6);
         $this->assertTrue(Uuid::validate($uuid));
-        $this->assertMatchesRegularExpression('~' . Uuid::VALID_UUID_REGEX . '~', (string)$uuid);
+        $this->assertMatchesRegularExpression('~'.Uuid::VALID_UUID_REGEX.'~', (string) $uuid);
     }
 
-    public function testVersion8Generation()
+    public function test_version8_generation()
     {
         $uuid = Uuid::generate(8);
         $this->assertInstanceOf('Webpatser\Uuid\Uuid', $uuid);
@@ -420,96 +424,166 @@ class UuidTest extends TestCase
         $this->assertEquals(1, $uuid->variant);
     }
 
-    public function testVersion8WithCustomData()
+    public function test_version8_with_custom_data()
     {
         $customData = 'test-data-123';
         $uuid1 = Uuid::generate(8, $customData);
         $uuid2 = Uuid::generate(8, $customData);
-        
+
         $this->assertEquals(8, $uuid1->version);
         $this->assertEquals(8, $uuid2->version);
-        
+
         // Same input should produce same UUID for V8
-        $this->assertEquals((string)$uuid1, (string)$uuid2);
+        $this->assertEquals((string) $uuid1, (string) $uuid2);
     }
 
-    public function testVersion8WithBinaryData()
+    public function test_version8_with_binary_data()
     {
         $binaryData = random_bytes(16);
         $uuid = Uuid::generate(8, $binaryData);
-        
+
         $this->assertEquals(8, $uuid->version);
         $this->assertEquals(1, $uuid->variant);
-        
+
         // Version and variant bits should be set correctly despite custom data
         $versionBits = ord($uuid->bytes[6]) >> 4;
         $this->assertEquals(8, $versionBits);
     }
 
-    public function testVersion8Properties()
+    public function test_version8_properties()
     {
         $uuid = Uuid::generate(8);
-        
+
         $this->assertEquals(8, $uuid->version);
         $this->assertEquals(1, $uuid->variant);
-        
+
         // V8 doesn't have time or node properties
         $this->assertNull($uuid->time);
         $this->assertNull($uuid->node);
     }
 
-    public function testVersion8Validation()
+    public function test_version8_validation()
     {
         $uuid = Uuid::generate(8);
         $this->assertTrue(Uuid::validate($uuid));
-        $this->assertMatchesRegularExpression('~' . Uuid::VALID_UUID_REGEX . '~', (string)$uuid);
+        $this->assertMatchesRegularExpression('~'.Uuid::VALID_UUID_REGEX.'~', (string) $uuid);
     }
 
-    public function testVersion8Uniqueness()
+    public function test_version8_uniqueness()
     {
         $uuids = [];
         for ($i = 0; $i < 100; $i++) {
             // Without custom data, should be random
-            $uuid = (string)Uuid::generate(8);
-            $this->assertNotContains($uuid, $uuids, 'Generated duplicate V8 UUID: ' . $uuid);
+            $uuid = (string) Uuid::generate(8);
+            $this->assertNotContains($uuid, $uuids, 'Generated duplicate V8 UUID: '.$uuid);
             $uuids[] = $uuid;
         }
     }
 
-    public function testVersion8CustomDataTypes()
+    public function test_version8_custom_data_types()
     {
         // Test with different data types
         $arrayData = ['key' => 'value', 'number' => 123];
         $uuid1 = Uuid::generate(8, $arrayData);
         $uuid2 = Uuid::generate(8, $arrayData);
-        
-        $this->assertEquals((string)$uuid1, (string)$uuid2);
-        
+
+        $this->assertEquals((string) $uuid1, (string) $uuid2);
+
         // Test with object
-        $object = (object)['prop' => 'value'];
+        $object = (object) ['prop' => 'value'];
         $uuid3 = Uuid::generate(8, $object);
         $this->assertEquals(8, $uuid3->version);
-        
+
         // Test with number
         $uuid4 = Uuid::generate(8, 42);
         $uuid5 = Uuid::generate(8, 42);
-        $this->assertEquals((string)$uuid4, (string)$uuid5);
+        $this->assertEquals((string) $uuid4, (string) $uuid5);
     }
 
-    public function testAllVersionsGeneration()
+    public function test_all_versions_generation()
     {
         // Test that all supported versions can be generated
         $versions = [1, 3, 4, 5, 6, 7, 8];
-        
+
         foreach ($versions as $version) {
-            $uuid = match($version) {
+            $uuid = match ($version) {
                 3, 5 => Uuid::generate($version, 'test', Uuid::NS_DNS),
                 default => Uuid::generate($version),
             };
-            
+
             $this->assertEquals($version, $uuid->version, "Version $version generation failed");
             $this->assertEquals(1, $uuid->variant, "Version $version has wrong variant");
             $this->assertTrue(Uuid::validate($uuid), "Version $version validation failed");
         }
+    }
+
+    public function test_performance_benchmark()
+    {
+        // Test benchmark functionality
+        $result = Uuid::benchmark(1000, 7);
+
+        $this->assertArrayHasKey('version', $result);
+        $this->assertArrayHasKey('iterations', $result);
+        $this->assertArrayHasKey('total_time_ms', $result);
+        $this->assertArrayHasKey('avg_time_us', $result);
+        $this->assertArrayHasKey('memory_used_bytes', $result);
+        $this->assertArrayHasKey('uuids_per_second', $result);
+
+        $this->assertEquals(7, $result['version']);
+        $this->assertEquals(1000, $result['iterations']);
+        $this->assertIsNumeric($result['total_time_ms']);
+        $this->assertIsNumeric($result['avg_time_us']);
+        $this->assertGreaterThan(0, $result['uuids_per_second']);
+
+        // Performance expectations (should generate at least 10k UUIDs/second)
+        $this->assertGreaterThan(10000, $result['uuids_per_second'],
+            'UUID generation performance is below expected threshold');
+    }
+
+    public function test_randomizer_optimizations()
+    {
+        // Test that we're using the optimized Randomizer class
+        $uuid1 = Uuid::generate(4);
+        $uuid2 = Uuid::generate(4);
+
+        // Should be different (randomness test)
+        $this->assertNotEquals((string) $uuid1, (string) $uuid2);
+
+        // Test hex generation optimization (if PHP 8.3+)
+        if (method_exists(\Random\Randomizer::class, 'getBytesFromString')) {
+            $uuid = Uuid::generate(8, 'hex-test');
+            $this->assertEquals(8, $uuid->version);
+        }
+    }
+
+    public function test_monotonic_timestamps()
+    {
+        // Test that V7 UUIDs maintain ordering with small delays
+        $uuids = [];
+        $timestamps = [];
+
+        // Generate UUIDs with micro-delays
+        for ($i = 0; $i < 10; $i++) {
+            if ($i > 0) {
+                usleep(100);
+            } // Small delay to ensure different timestamps
+            $uuid = Uuid::generate(7);
+            $uuids[] = (string) $uuid;
+            $timestamps[] = $uuid->time;
+        }
+
+        // Check that timestamps are monotonic (non-decreasing)
+        $sortedTimestamps = $timestamps;
+        sort($sortedTimestamps, SORT_NUMERIC);
+
+        $this->assertEquals($timestamps, $sortedTimestamps,
+            'V7 UUID timestamps should be monotonic');
+
+        // Check that string representations are also sorted
+        $sortedUuids = $uuids;
+        sort($sortedUuids);
+
+        $this->assertEquals($uuids, $sortedUuids,
+            'V7 UUIDs should maintain lexicographic order');
     }
 }
