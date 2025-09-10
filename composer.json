@@ -1,28 +1,31 @@
 {
 	"name" : "webpatser/laravel-uuid",
-	"description" : "Laravel package to generate and to validate a universally unique identifier (UUID) according to the RFC 4122 standard. Support for version 1, 3, 4 and 5 UUIDs are built-in.",
+	"description" : "Laravel integration for webpatser/uuid - High-performance drop-in UUID replacements (15% faster than Ramsey). Provides Str macros, HasUuids trait, facades, and casts. RFC 4122/9562 compliant.",
 	"authors" : [{
 			"name" : "Christoph Kempen",
 			"email" : "christoph@downsized.nl"
 		}
 	],
 	"keywords" : [
-		"UUID RFC4122"
+		"laravel", "uuid", "performance", "replacement", "ramsey", "facade", "cast", "macro", "hasuuids", "rfc4122", "rfc9562"
 	],
 	"homepage" : "https://github.com/webpatser/laravel-uuid",
 	"license" : [
 		"MIT"
 	],
 	"require" : {
-		"php" : "^8.2"
+		"php" : "^8.2",
+		"webpatser/uuid": "^1.2.1",
+		"illuminate/support": "^11.0|^12.0"
 	},
     "require-dev" : {
 		"fakerphp/faker": "^1.24",
-		"phpunit/phpunit": "^11.0"
+		"phpunit/phpunit": "^11.0",
+		"illuminate/database": "^11.0"
     },
 	"autoload" : {
 		"psr-4" : {
-			"Webpatser\\Uuid\\": "src/Webpatser/Uuid/"
+			"Webpatser\\LaravelUuid\\": "src/Webpatser/LaravelUuid/"
 		}
 	},
 	"autoload-dev": {
@@ -37,10 +40,10 @@
     "extra": {
         "laravel": {
 			"providers": [
-				"Webpatser\\Uuid\\UuidServiceProvider"
+				"Webpatser\\LaravelUuid\\UuidServiceProvider"
 			],
             "aliases": {
-                "Uuid": "Webpatser\\Uuid\\Uuid"
+                "Uuid": "Webpatser\\LaravelUuid\\UuidFacade"
             }
         }
     }
