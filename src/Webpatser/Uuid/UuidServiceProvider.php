@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webpatser\Uuid;
 
 use Illuminate\Support\ServiceProvider;
@@ -7,23 +9,12 @@ use Illuminate\Support\Facades\Validator;
 
 class UuidServiceProvider extends ServiceProvider
 {
-    /**
-     * Bootstrap any application services.
-     *
-     * @return void
-     */
-    public function boot()
+    public function boot(): void
     {
-        Validator::extend('uuid', function ($attribute, $value, $parameters, $validator) {
-            return Uuid::validate($value);
-        });
+        Validator::extend('uuid', fn($attribute, $value, $parameters, $validator) => Uuid::validate($value));
     }
     
-    /**
-     * Register the service provider.
-     *
-     */
-    public function register()
+    public function register(): void
     {
         //
     }

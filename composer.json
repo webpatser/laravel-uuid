@@ -14,11 +14,11 @@
 		"MIT"
 	],
 	"require" : {
-		"php" : "^7.0|^8.0"
+		"php" : "^8.0"
 	},
     "require-dev" : {
-		"fakerphp/faker": "^1.9.1",
-		"phpunit/phpunit": "^9.3.3"
+		"fakerphp/faker": "^1.24",
+		"phpunit/phpunit": "^11.0"
     },
 	"autoload" : {
 		"psr-4" : {

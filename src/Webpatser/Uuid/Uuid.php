@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Webpatser\Uuid;
 
 use Exception;
@@ -21,108 +23,35 @@ use Exception;
  */
 class Uuid
 {
-    const MD5 = 3;
-    const SHA1 = 5;
-    /**
-     * 00001111  Clears all bits of version byte with AND
-     * @var int
-     */
-    const CLEAR_VER = 15;
+    public const MD5 = 3;
+    public const SHA1 = 5;
     
-    /**
-     * 00111111  Clears all relevant bits of variant byte with AND
-     * @var int
-     */
-    const CLEAR_VAR = 63;
-    
-    /**
-     * 11100000  Variant reserved for future use
-     * @var int
-     */
-    const VAR_RES = 224;
-    
-    /**
-     * 11000000  Microsoft UUID variant
-     * @var int
-     */
-    const VAR_MS = 192;
-    
-    /**
-     * 10000000  The RFC 4122 variant (this variant)
-     * @var int
-     */
-    const VAR_RFC = 128;
-    
-    /**
-     * 00000000  The NCS compatibility variant
-     * @var int
-     */
-    const VAR_NCS = 0;
-    
-    /**
-     * 00010000
-     * @var int
-     */
-    const VERSION_1 = 16;
-    
-    /**
-     * 00110000
-     * @var int
-     */
-    const VERSION_3 = 48;
-    
-    /**
-     * 01000000
-     * @var int
-     */
-    const VERSION_4 = 64;
-    
-    /**
-     * 01010000
-     * @var int
-     */
-    const VERSION_5 = 80;
-    
-    /**
-     * Time (in 100ns steps) between the start of the UTC and Unix epochs
-     * @var int
-     */
-    const INTERVAL = 0x01b21dd213814000;
-    
-    /**
-     * @var string
-     */
-    const NS_DNS = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
-    
-    /**
-     * @var string
-     */
-    const NS_URL = '6ba7b811-9dad-11d1-80b4-00c04fd430c8';
-    
-    /**
-     * @var string
-     */
-    const NS_OID = '6ba7b812-9dad-11d1-80b4-00c04fd430c8';
-    
-    /**
-     * @var string
-     */
-    const NS_X500 = '6ba7b814-9dad-11d1-80b4-00c04fd430c8';
-    
-    /**
-     * Regular expression for validation of UUID.
-     */
-    const VALID_UUID_REGEX = '^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$';
+    public const CLEAR_VER = 15;
+    public const CLEAR_VAR = 63;
+    public const VAR_RES = 224;
+    public const VAR_MS = 192;
+    public const VAR_RFC = 128;
+    public const VAR_NCS = 0;
+    public const VERSION_1 = 16;
+    public const VERSION_3 = 48;
+    public const VERSION_4 = 64;
+    public const VERSION_5 = 80;
+    public const VERSION_6 = 96;
+    public const VERSION_7 = 112;
+    public const VERSION_8 = 128;
+    public const INTERVAL = 0x01b21dd213814000;
+    public const NS_DNS = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
+    public const NS_URL = '6ba7b811-9dad-11d1-80b4-00c04fd430c8';
+    public const NS_OID = '6ba7b812-9dad-11d1-80b4-00c04fd430c8';
+    public const NS_X500 = '6ba7b814-9dad-11d1-80b4-00c04fd430c8';
+    public const NIL = '00000000-0000-0000-0000-000000000000';
+    public const VALID_UUID_REGEX = '^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$';
 
-    protected $bytes;
-    protected $string;
-    protected $uuid_ordered;
+    protected string $bytes;
+    protected string $string;
+    protected string $uuid_ordered;
 
-    /**
-     * @param string $uuid
-     * @throws Exception
-     */
-    protected function __construct($uuid)
+    protected function __construct(string $uuid)
     {
         if (!empty($uuid) && strlen($uuid) !== 16) {
             throw new Exception('Input must be a 128-bit integer.');
@@ -144,14 +73,7 @@ class Uuid
     }
     
     
-    /**
-     * @param int $ver
-     * @param string $node
-     * @param string $ns
-     * @return Uuid
-     * @throws Exception
-     */
-    public static function generate($ver = 1, $node = null, $ns = null)
+    public static function generate(int $ver = 1, mixed $node = null, ?string $ns = null): self
     {
         /* Create a new UUID based on provided data. */
         switch ((int)$ver) {
@@ -166,19 +88,18 @@ class Uuid
                 return new static(static::mintRand());
             case 5:
                 return new static(static::mintName(static::SHA1, $node, $ns));
+            case 6:
+                return new static(static::mintTimeV6($node));
+            case 7:
+                return new static(static::mintTimeV7());
+            case 8:
+                return new static(static::mintCustomV8($node));
             default:
                 throw new Exception('Selected version is invalid or unsupported.');
         }
     }
     
-    /**
-     * Generates a Version 1 UUID.
-     * These are derived from the time at which they were generated.
-     *
-     * @param string $node
-     * @return string
-     */
-    protected static function mintTime($node = null)
+    protected static function mintTime(?string $node = null): string
     {
         
         /** Get time since Gregorian calendar reform in 100ns intervals
@@ -186,7 +107,7 @@ class Uuid
          * integer size limits.
          * Note that this will never be more accurate than to the microsecond.
          */
-        $time = microtime(1) * 10000000 + static::INTERVAL;
+        $time = microtime(true) * 10000000 + static::INTERVAL;
         
         // Convert to a string representation
         $time = sprintf("%F", $time);
@@ -227,26 +148,12 @@ class Uuid
         return $uuid;
     }
     
-    /**
-     * Randomness is returned as a string of bytes
-     *
-     * @param $bytes
-     * @return string
-     */
-    public static function randomBytes($bytes)
+    public static function randomBytes(int $bytes): string
     {
         return random_bytes($bytes);
     }
     
-    /**
-     * Insure that an input string is either binary or hexadecimal.
-     * Returns binary representation, or false on failure.
-     *
-     * @param string $str
-     * @param integer $len
-     * @return string|null
-     */
-    protected static function makeBin($str, $len)
+    protected static function makeBin(mixed $str, int $len): ?string
     {
         if ($str instanceof self) {
             return $str->bytes;
@@ -266,17 +173,7 @@ class Uuid
         }
     }
     
-    /**
-     * Generates a Version 3 or Version 5 UUID.
-     * These are derived from a hash of a name and its namespace, in binary form.
-     *
-     * @param string $ver
-     * @param string $node
-     * @param string $ns
-     * @return string
-     * @throws Exception
-     */
-    protected static function mintName($ver, $node, $ns)
+    protected static function mintName(int $ver, string $node, string $ns): string
     {
         if (empty($node)) {
             throw new Exception('A name-string is required for Version 3 or 5 UUIDs.');
@@ -294,11 +191,11 @@ class Uuid
         switch ($ver) {
             case static::MD5:
                 $version = static::VERSION_3;
-                $uuid = md5($ns . $node, 1);
+                $uuid = md5($ns . $node, true);
                 break;
             case static::SHA1:
                 $version = static::VERSION_5;
-                $uuid = substr(sha1($ns . $node, 1), 0, 16);
+                $uuid = substr(sha1($ns . $node, true), 0, 16);
                 break;
             default:
                 // no default really required here
@@ -313,14 +210,7 @@ class Uuid
         return ($uuid);
     }
     
-    /**
-     * Generate a Version 4 UUID.
-     * These are derived solely from random numbers.
-     * generate random fields
-     *
-     * @return string
-     */
-    protected static function mintRand()
+    protected static function mintRand(): string
     {
         $uuid = static::randomBytes(16);
         // set variant
@@ -330,28 +220,110 @@ class Uuid
         
         return $uuid;
     }
+
+    protected static function mintTimeV7(): string
+    {
+        // Get Unix timestamp in milliseconds (48 bits)
+        $timestampMs = (int)(microtime(true) * 1000);
+        
+        // Pack timestamp as 48-bit big-endian integer (6 bytes)
+        $timestampBytes = '';
+        for ($i = 5; $i >= 0; $i--) {
+            $timestampBytes .= chr(($timestampMs >> ($i * 8)) & 0xFF);
+        }
+        
+        // Generate 74 random bits (10 bytes, but we'll use 9.25 bytes effectively)
+        $randomBytes = static::randomBytes(10);
+        
+        // Build UUID: 48-bit timestamp + 4-bit version + 12-bit random + 2-bit variant + 62-bit random
+        $uuid = $timestampBytes . $randomBytes;
+        
+        // Set version (bits 48-51 = version 7)
+        $uuid[6] = chr(ord($uuid[6]) & static::CLEAR_VER | static::VERSION_7);
+        
+        // Set variant (bits 64-65 = RFC variant)
+        $uuid[8] = chr(ord($uuid[8]) & static::CLEAR_VAR | static::VAR_RFC);
+        
+        return $uuid;
+    }
+
+    protected static function mintTimeV6(?string $node = null): string
+    {
+        // Get time since Gregorian calendar reform in 100ns intervals (same as V1)
+        $time = microtime(true) * 10000000 + static::INTERVAL;
+        
+        // Convert to a string representation
+        $time = sprintf("%F", $time);
+        
+        // Strip decimal point
+        preg_match("/^\d+/", $time, $time);
+        
+        // And now to a 64-bit binary representation
+        $time = base_convert($time[0], 10, 16);
+        $time = pack("H*", str_pad($time, 16, "0", STR_PAD_LEFT));
+        
+        // For V6: Reorder timestamp bytes for better sorting
+        // V1 format: time_low(4) + time_mid(2) + time_high(2)
+        // V6 format: time_high(4) + time_mid(2) + time_low(2) (most significant first)
+        // Reorder: [4,5,6,7] + [2,3] + [0,1]  ->  [0,1,2,3] + [4,5] + [6,7]
+        $uuid = $time[4] . $time[5] . $time[6] . $time[7] . $time[2] . $time[3] . $time[0] . $time[1];
+        
+        // Generate a random clock sequence
+        $uuid .= static::randomBytes(2);
+        
+        // Set variant
+        $uuid[8] = chr(ord($uuid[8]) & static::CLEAR_VAR | static::VAR_RFC);
+        
+        // Set version
+        $uuid[6] = chr(ord($uuid[6]) & static::CLEAR_VER | static::VERSION_6);
+        
+        // Set the final 'node' parameter, a MAC address
+        if (!is_null($node)) {
+            $node = static::makeBin($node, 6);
+        }
+        
+        // If no node was provided or if the node was invalid,
+        // generate a random MAC address and set the multicast bit
+        if (is_null($node)) {
+            $node = static::randomBytes(6);
+            $node[0] = pack("C", ord($node[0]) | 1);
+        }
+        
+        $uuid .= $node;
+        
+        return $uuid;
+    }
+
+    protected static function mintCustomV8(mixed $data = null): string
+    {
+        // For V8, we allow custom data or default to random
+        if ($data === null) {
+            // Default implementation: 122 bits of random data
+            $uuid = static::randomBytes(16);
+        } else if (is_string($data) && strlen($data) === 16) {
+            // Accept 16-byte binary data directly
+            $uuid = $data;
+        } else {
+            // For other data types, hash to get consistent 16 bytes
+            $hash = hash('sha256', serialize($data), true);
+            $uuid = substr($hash, 0, 16);
+        }
+        
+        // Set variant (bits 64-65 = RFC variant)
+        $uuid[8] = chr(ord($uuid[8]) & static::CLEAR_VAR | static::VAR_RFC);
+        
+        // Set version (bits 48-51 = version 8)
+        $uuid[6] = chr(ord($uuid[6]) & static::CLEAR_VER | static::VERSION_8);
+        
+        return $uuid;
+    }
     
-    /**
-     * Import an existing UUID
-     *
-     * @param string $uuid
-     * @return Uuid
-     */
-    public static function import($uuid)
+    public static function import(string $uuid): self
     {
         return new static(static::makeBin($uuid, 16));
     }
     
-    /**
-     * Compares the binary representations of two UUIDs.
-     * The comparison will return true if they are bit-exact,
-     * or if neither is valid.
-     *
-     * @param string $a
-     * @param string $b
-     * @return string|string
-     */
-    public static function compare($a, $b)
+    public static function compare(string $a, string $b): bool
     {
         if (static::makeBin($a, 16) == static::makeBin($b, 16)) {
             return true;
@@ -360,99 +332,106 @@ class Uuid
         }
     }
     
-    /**
-     * @param string $var
-     * @return string|string|number|number|number|number|number|NULL|number|NULL|NULL
-     */
-    public function __get($var)
+    public function __get(string $var): mixed
     {
-        switch ($var) {
-            case "bytes":
-                return $this->bytes;
-                break;
-            case "hex":
-                return bin2hex($this->bytes);
-                break;
-            case "node":
-                if (ord($this->bytes[6]) >> 4 == 1) {
-                    return bin2hex(substr($this->bytes, 10));
-                } else {
-                    return null;
-                }
-                break;
-            case "string":
-                return $this->__toString();
-                break;
-            case "uuid_ordered":
-                return $this->__toUuidOrdered();
-                break;
-            case "time":
-                if (ord($this->bytes[6]) >> 4 == 1) {
-                    // Restore contiguous big-endian byte order
-                    $time = bin2hex($this->bytes[6] . $this->bytes[7] . $this->bytes[4] . $this->bytes[5] .
-                        $this->bytes[0] . $this->bytes[1] . $this->bytes[2] . $this->bytes[3]);
-                    // Clear version flag
-                    $time[0] = "0";
-            
-                    // Do some reverse arithmetic to get a Unix timestamp
-                    return (hexdec($time) - static::INTERVAL) / 10000000;
-                } else {
-                    return null;
-                }
-                break;
-            case "urn":
-                return "urn:uuid:" . $this->__toString();
-                break;
-            case "variant":
-                $byte = ord($this->bytes[8]);
-                if ($byte >= static::VAR_RES) {
-                    return 3;
-                } elseif ($byte >= static::VAR_MS) {
-                    return 2;
-                } elseif ($byte >= static::VAR_RFC) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-                break;
-            case "version":
-                return ord($this->bytes[6]) >> 4;
-                break;
-            default:
-                return null;
-                break;
-        }
+        return match ($var) {
+            'bytes' => $this->bytes,
+            'hex' => bin2hex($this->bytes),
+            'node' => match (ord($this->bytes[6]) >> 4) {
+                1, 6 => bin2hex(substr($this->bytes, 10)),
+                default => null,
+            },
+            'string' => $this->__toString(),
+            'uuid_ordered' => $this->__toUuidOrdered(),
+            'time' => match (ord($this->bytes[6]) >> 4) {
+                1 => $this->extractTime(),
+                6 => $this->extractTimeV6(),
+                7 => $this->extractTimeV7(),
+                default => null,
+            },
+            'urn' => 'urn:uuid:' . $this->__toString(),
+            'variant' => $this->getVariant(),
+            'version' => ord($this->bytes[6]) >> 4,
+            default => null,
+        };
     }
     
-    /**
-     * Return the UUID
-     *
-     * @return string
-     */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->string;
     }
 
-    /**
-     * Return the UUID ORDERED
-     *
-     * @return uuid ordered
-     */
-    public function __toUuidOrdered()
+    public function __toUuidOrdered(): string
     {
         return $this->uuid_ordered;
     }
-    
-    /**
-     * Import and validate an UUID
-     *
-     * @param Uuid|string $uuid
-     *
-     * @return boolean
-     */
-    public static function validate($uuid)
+
+    private function extractTime(): float
     {
-        return (boolean) preg_match('~' . static::VALID_UUID_REGEX . '~', static::import($uuid)->string);
+        $time = bin2hex($this->bytes[6] . $this->bytes[7] . $this->bytes[4] . $this->bytes[5] .
+            $this->bytes[0] . $this->bytes[1] . $this->bytes[2] . $this->bytes[3]);
+        $time[0] = "0";
+        return (hexdec($time) - static::INTERVAL) / 10000000;
+    }
+
+    private function extractTimeV6(): float
+    {
+        // For V6: reorder back to standard timestamp format
+        // V6 format: time_high(4) + time_mid(2) + time_low(2)
+        // Reorder back: [0,1,2,3] + [4,5] + [6,7] -> [6,7] + [4,5] + [0,1,2,3]
+        $time = bin2hex($this->bytes[6] . $this->bytes[7] . $this->bytes[4] . $this->bytes[5] .
+            $this->bytes[0] . $this->bytes[1] . $this->bytes[2] . $this->bytes[3]);
+        // Clear version flag
+        $time[0] = "0";
+        // Do some reverse arithmetic to get a Unix timestamp
+        return (hexdec($time) - static::INTERVAL) / 10000000;
+    }
+
+    private function extractTimeV7(): float
+    {
+        // Extract 48-bit timestamp from first 6 bytes
+        $timestampMs = 0;
+        for ($i = 0; $i < 6; $i++) {
+            $timestampMs = ($timestampMs << 8) | ord($this->bytes[$i]);
+        }
+        // Convert milliseconds to seconds (float)
+        return $timestampMs / 1000.0;
+    }
+
+    private function getVariant(): int
+    {
+        $byte = ord($this->bytes[8]);
+        return match (true) {
+            $byte >= static::VAR_RES => 3,
+            $byte >= static::VAR_MS => 2,
+            $byte >= static::VAR_RFC => 1,
+            default => 0,
+        };
+    }
+    
+    public static function validate(mixed $uuid): bool
+    {
+        if ($uuid instanceof self) {
+            return (bool) preg_match('~' . static::VALID_UUID_REGEX . '~', $uuid->string);
+        }
+        return (bool) preg_match('~' . static::VALID_UUID_REGEX . '~', static::import($uuid)->string);
+    }
+
+    public static function nil(): self
+    {
+        return static::import(static::NIL);
+    }
+
+    public function isNil(): bool
+    {
+        return $this->string === static::NIL;
+    }
+
+    public static function isNilUuid(mixed $uuid): bool
+    {
+        if ($uuid instanceof self) {
+            return $uuid->isNil();
+        }
+        return static::import($uuid)->isNil();
     }
 }
