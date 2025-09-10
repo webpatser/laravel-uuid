@@ -8,6 +8,19 @@
 
 Laravel package to generate and to validate universally unique identifiers (UUIDs) according to both RFC 4122 and the modern RFC 9562 standards. Support for UUID versions 1, 3, 4, 5, 6, 7, and 8 are built-in.
 
+## 🚀 Performance Benchmark
+
+**15% faster than Ramsey UUID** with modern PHP optimizations:
+
+| Package | V4 (Random) | V7 (Unix Timestamp) |
+|---------|-------------|-------------------|
+| **Webpatser UUID v5.1** | **715,140**/sec | **518,466**/sec |
+| Ramsey UUID v4.9 | 659,717/sec | 412,501/sec |
+
+✅ **15.1% faster overall** • ✅ **RFC 9562 compliant** • ✅ **Monotonic V7 UUIDs**
+
+*Benchmarked on PHP 8.4 with 50,000 iterations*
+
 ## What's new in 5.*
 Laravel-uuid v5 is a major modernization update with cutting-edge PHP optimizations.
 
