@@ -14,7 +14,7 @@ Laravel package to generate and to validate universally unique identifiers (UUID
 
 | Package | V4 (Random) | V7 (Unix Timestamp) |
 |---------|-------------|-------------------|
-| **Webpatser UUID v5.1** | **715,140**/sec | **518,466**/sec |
+| **Laravel UUID v5.1** | **715,140**/sec | **518,466**/sec |
 | Ramsey UUID v4.9 | 659,717/sec | 412,501/sec |
 
 ✅ **15.1% faster overall** • ✅ **RFC 9562 compliant** • ✅ **Monotonic V7 UUIDs**
