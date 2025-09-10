@@ -11,7 +11,7 @@ Laravel package to generate and to validate universally unique identifiers (UUID
 ## What's new in 5.*
 Laravel-uuid v5 is a major modernization update with cutting-edge PHP optimizations.
 
-### Version 5.1+ (PHP 8.2+) - Performance Optimized
+### Version 5.1 (PHP 8.2+) - Performance Optimized
 - 🚀 **PHP 8.2+ Randomizer class** - 11% faster random generation with better entropy
 - ⚡ **PHP 8.3+ hex optimization** - Direct hex string generation with `getBytesFromString()`
 - 🎯 **hrtime() precision** - Nanosecond timestamps with monotonic behavior for V7 UUIDs
@@ -45,7 +45,7 @@ Laravel 4.*? use [version 1](https://github.com/webpatser/laravel-uuid/tree/1.5)
 
 ## Installation
 
-### Version 5.1+ (PHP 8.2+) - Recommended
+### Version 5.1 (PHP 8.2+) - Recommended
 For maximum performance with cutting-edge PHP optimizations:
 
 ```shell
@@ -279,7 +279,7 @@ dd($validator->passes());
 
 ## Performance Benchmarking
 
-Version 5.1+ includes built-in performance benchmarking to measure UUID generation speed:
+Version 5.1 includes built-in performance benchmarking to measure UUID generation speed:
 
 ```php
 // Benchmark UUID v7 generation (10,000 iterations)
@@ -328,7 +328,7 @@ foreach ([1, 4, 6, 7, 8] as $version) {
 
 | Package Version | PHP Version | UUID Versions | Performance | Status |
 |----------------|-------------|---------------|-------------|---------|
-| 5.1+ | 8.2+ | 1, 3, 4, 5, 6, 7, 8 | **Best** | ⚡ Optimized |
+| 5.1 | 8.2+ | 1, 3, 4, 5, 6, 7, 8 | **Best** | ⚡ Optimized |
 | 5.0 | 8.0+ | 1, 3, 4, 5, 6, 7, 8 | Very Good | ✅ Current |
 | 4.x | 7.3 - 8.x | 1, 3, 4, 5 | Good | ✅ Legacy |
 | 3.x | 7.0+ | 1, 3, 4, 5 | Basic | 🔒 Security only |
