@@ -149,5 +149,48 @@ class UuidMacros
         Str::macro('binaryCustomUuid', function (string $data) {
             return Uuid::generate(8, $data)->bytes;
         });
+
+        // === SQL SERVER GUID METHODS (byte order correction) ===
+
+        // Import UUID from SQL Server uniqueidentifier with byte order correction
+        Str::macro('uuidFromSqlServer', function (string $sqlServerGuid) {
+            return (string) Uuid::importFromSqlServer($sqlServerGuid);
+        });
+
+        // Export UUID to SQL Server uniqueidentifier format
+        Str::macro('uuidToSqlServer', function (string $uuid) {
+            if (!Uuid::validate($uuid)) {
+                throw new \InvalidArgumentException("Invalid UUID format: {$uuid}");
+            }
+            return Uuid::import($uuid)->toSqlServer();
+        });
+
+        // Get SQL Server binary format for uniqueidentifier columns
+        Str::macro('uuidToSqlServerBinary', function (string $uuid) {
+            if (!Uuid::validate($uuid)) {
+                throw new \InvalidArgumentException("Invalid UUID format: {$uuid}");
+            }
+            return Uuid::import($uuid)->toSqlServerBinary();
+        });
+
+        // Import SQL Server binary uniqueidentifier to standard UUID string
+        Str::macro('sqlServerBinaryToUuid', function (string $binary) {
+            if (strlen($binary) !== 16) {
+                throw new \InvalidArgumentException("SQL Server GUID binary must be exactly 16 bytes");
+            }
+            // Reverse the endianness conversion
+            $correctedBytes = 
+                strrev(substr($binary, 0, 4)) .  // time-low: reverse 4 bytes
+                strrev(substr($binary, 4, 2)) .  // time-mid: reverse 2 bytes
+                strrev(substr($binary, 6, 2)) .  // time-hi: reverse 2 bytes
+                substr($binary, 8, 8);           // clock-seq + node: keep as-is
+            
+            return Uuid::import($correctedBytes)->string;
+        });
+
+        // Check if GUID appears to be in SQL Server format (heuristic)
+        Str::macro('isSqlServerGuid', function (string $guid) {
+            return Uuid::isSqlServerFormat($guid);
+        });
     }
 }

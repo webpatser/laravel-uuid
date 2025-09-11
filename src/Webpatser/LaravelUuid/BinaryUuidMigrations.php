@@ -56,6 +56,11 @@ class BinaryUuidMigrations
                 $table->binary($column, 16)->primary();
                 break;
                 
+            case 'sqlsrv':
+                // SQL Server: Use uniqueidentifier for native GUID support
+                $table->addColumn('uniqueidentifier', $column)->primary();
+                break;
+                
             default:
                 // Fallback to standard binary
                 $table->binary($column, 16)->primary();
@@ -91,6 +96,10 @@ class BinaryUuidMigrations
                 
             case 'sqlite':
                 $col = $table->binary($column, 16);
+                break;
+                
+            case 'sqlsrv':
+                $col = $table->addColumn('uniqueidentifier', $column);
                 break;
                 
             default:
@@ -137,6 +146,10 @@ class BinaryUuidMigrations
                 $col = $table->binary($column, 16);
                 break;
                 
+            case 'sqlsrv':
+                $col = $table->addColumn('uniqueidentifier', $column);
+                break;
+                
             default:
                 $col = $table->binary($column, 16);
         }
@@ -161,7 +174,7 @@ class BinaryUuidMigrations
             return DB::connection()->getDriverName();
         } catch (\Exception) {
             // Fallback when Laravel app is not bootstrapped
-            return 'mysql'; // Default to MySQL
+            return 'sqlite'; // Default to SQLite (Laravel's default)
         }
     }
 
@@ -195,6 +208,9 @@ class BinaryUuidMigrations
                 
             case 'sqlite':
                 return self::getSqliteConversionSql($table, $column);
+                
+            case 'sqlsrv':
+                return self::getSqlServerConversionSql($table, $column);
                 
             default:
                 return self::getMysqlConversionSql($table, $column) . "\n\n-- Note: This is MySQL syntax. Adjust for your database.";
@@ -288,6 +304,39 @@ AND `{$column}_binary` IS NULL;
     }
 
     /**
+     * Get SQL Server specific conversion SQL
+     */
+    protected static function getSqlServerConversionSql(string $table, string $column): string
+    {
+        return "
+-- SQL Server: String to uniqueidentifier GUID Conversion
+-- WARNING: Test this process thoroughly before running in production!
+-- Note: SQL Server's uniqueidentifier handles endianness automatically
+
+-- 1. Add temporary uniqueidentifier column
+ALTER TABLE [{$table}] ADD [{$column}_guid] uniqueidentifier NULL;
+
+-- 2. Populate GUID column from string column using automatic conversion
+UPDATE [{$table}] 
+SET [{$column}_guid] = CAST([{$column}] AS uniqueidentifier)
+WHERE [{$column}] IS NOT NULL;
+
+-- 3. Verify conversion (should return 0)
+SELECT COUNT(*) FROM [{$table}] 
+WHERE [{$column}] IS NOT NULL 
+AND [{$column}_guid] IS NULL;
+
+-- 4. After updating your application code to use SQL Server GUID methods:
+-- ALTER TABLE [{$table}] DROP COLUMN [{$column}];
+-- EXEC sp_rename '{$table}.{$column}_guid', '{$column}', 'COLUMN';
+
+-- Note: SQL Server handles GUID endianness automatically in uniqueidentifier columns.
+-- Use Str::uuidFromSqlServer() and Str::uuidToSqlServer() in your Laravel code
+-- for proper byte order handling when working with other databases.
+        ";
+    }
+
+    /**
      * Get database-specific information about binary UUID implementation
      * 
      * @param string|null $driver Database driver (auto-detected if null)
@@ -328,6 +377,18 @@ AND `{$column}_binary` IS NULL;
                     'conversion_function' => 'unhex(replace(uuid, "-", ""))',
                     'reverse_function' => 'hex(binary_uuid) with dashes inserted',
                     'supports_native_uuid' => false,
+                ];
+                
+            case 'sqlsrv':
+                return [
+                    'driver' => $driver,
+                    'column_type' => 'uniqueidentifier',
+                    'storage_bytes' => 16,
+                    'conversion_function' => 'CAST(uuid AS uniqueidentifier)',
+                    'reverse_function' => 'CAST(guid AS nvarchar(36))',
+                    'supports_native_uuid' => true,
+                    'supports_endianness_conversion' => true,
+                    'note' => 'SQL Server handles GUID endianness automatically. Use Laravel macros for cross-database compatibility.'
                 ];
                 
             default:
