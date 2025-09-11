@@ -247,6 +247,12 @@ $version = Str::uuidVersion($uuid);     // Get UUID version (1-8)
 $timestamp = Str::uuidTimestamp($uuid); // Extract timestamp (V1/V6/V7)
 $nil = Str::nilUuid();                  // Nil UUID
 $isNil = Str::isNilUuid($uuid);        // Check if nil
+
+// SQL Server GUID conversion (zero performance impact)
+$sqlServerGuid = Str::uuidFromSqlServer('825B076B-44EC-E511-80DC-00155D0ABC54');
+$toSqlServer = Str::uuidToSqlServer($uuid);           // Export to SQL Server format
+$sqlServerBinary = Str::uuidToSqlServerBinary($uuid); // SQL Server binary format
+$isSqlServer = Str::isSqlServerGuid($someGuid);       // Heuristic detection
 ```
 
 **Use `Str::fastUuid()` instead of `Str::uuid()` for 15% better performance!**
@@ -344,6 +350,7 @@ $backToBinary = Str::uuidToBinary($stringUuid);  // Convert to binary
 | **MySQL/MariaDB** | `varbinary(16)` | `BinaryUuidMigrations::addBinaryUuidPrimary($table)` | 16 bytes | ✅ **Tested** |
 | **PostgreSQL** | `bytea` | `BinaryUuidMigrations::addBinaryUuidPrimary($table)` | 16 bytes | ✅ **Supported** |  
 | **SQLite** | `BLOB` | `BinaryUuidMigrations::addBinaryUuidPrimary($table)` | 16 bytes | ✅ **Supported** |
+| **SQL Server** | `uniqueidentifier` | `BinaryUuidMigrations::addBinaryUuidPrimary($table)` | 16 bytes | ✅ **GUID Support** |
 
 **Real-World MariaDB Test Results:**
 - **Binary UUIDs**: `varbinary(16)` → 16 bytes storage
@@ -380,6 +387,63 @@ BinaryUuidMigrations::addBinaryUuidPrimary($table);   // Uses correct type for y
 $info = BinaryUuidMigrations::getDatabaseInfo();      // Get DB-specific details
 $sql = BinaryUuidMigrations::getConversionSql('users', 'id'); // DB-specific conversion
 ```
+
+## 🗃️ SQL Server GUID Support
+
+Handle SQL Server's mixed-endianness GUID format seamlessly:
+
+```php
+use Illuminate\Support\Str;
+
+// Import UUID from SQL Server with automatic byte order correction
+$sqlServerGuid = '825B076B-44EC-E511-80DC-00155D0ABC54';  // From SQL Server
+$correctedUuid = Str::uuidFromSqlServer($sqlServerGuid);   // Standard format
+echo $correctedUuid; // '6B075B82-EC44-11E5-80DC-00155D0ABC54'
+
+// Export UUID to SQL Server format
+$standardUuid = '6B075B82-EC44-11E5-80DC-00155D0ABC54';
+$sqlServerFormat = Str::uuidToSqlServer($standardUuid);    // For SQL Server
+echo $sqlServerFormat; // '825B076B-44EC-E511-80DC-00155D0ABC54'
+
+// Binary SQL Server GUID handling
+$sqlServerBinary = Str::uuidToSqlServerBinary($standardUuid);     // 16-byte SQL Server format
+$backToString = Str::sqlServerBinaryToUuid($sqlServerBinary);     // Convert back to standard
+
+// Automatic format detection (optional)
+if (Str::isSqlServerGuid($someGuid)) {
+    $corrected = Str::uuidFromSqlServer($someGuid);
+}
+```
+
+### Laravel Migration Support
+
+SQL Server `uniqueidentifier` columns are automatically supported:
+
+```php
+use Webpatser\LaravelUuid\BinaryUuidMigrations;
+
+Schema::create('users', function (Blueprint $table) {
+    // Automatically uses 'uniqueidentifier' on SQL Server
+    BinaryUuidMigrations::addBinaryUuidPrimary($table);
+    BinaryUuidMigrations::addBinaryUuidColumn($table, 'parent_id', true);
+    $table->string('name');
+});
+```
+
+### Database Support Matrix
+
+| Database | Column Type | Storage | SQL Server GUID Support |
+|----------|-------------|---------|-------------------------|
+| **MySQL/MariaDB** | `varbinary(16)` | 16 bytes | ✅ Via macros |
+| **PostgreSQL** | `bytea` | 16 bytes | ✅ Via macros |  
+| **SQLite** | `BLOB` | 16 bytes | ✅ Via macros |
+| **SQL Server** | `uniqueidentifier` | 16 bytes | ✅ **Native + macros** |
+
+**Benefits:**
+- ✅ **Automatic endianness handling** for SQL Server
+- ✅ **Cross-database compatibility** with conversion macros  
+- ✅ **Transparent round-trip conversion** (lossless)
+- ✅ **Zero performance impact** (only when using SQL Server methods)
 
 ## 📊 Performance
 
