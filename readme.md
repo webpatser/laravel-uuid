@@ -22,7 +22,7 @@
 
 This package integrates with **webpatser/uuid** - a blazing fast pure PHP UUID library that's **15% faster than Ramsey UUID** with modern PHP 8.2+ optimizations.
 
-For core UUID functionality, documentation, and performance benchmarks, see: **[webpatser/uuid](https://github.com/webpatser/uuid)**
+For core UUID functionality and documentation, see: **[webpatser/uuid](https://github.com/webpatser/uuid)**
 
 ## 🎯 Laravel Integration Features
 
@@ -192,7 +192,6 @@ $uuid7 = Uuid::v7();                    // Generate V7 UUID
 $uuid = Uuid::generate(1);              // Generate any version
 $isValid = Uuid::validate($uuid);       // Validate UUIDs
 $nil = Uuid::nil();                     // Get nil UUID
-$result = Uuid::benchmark(1000, 7);     // Direct library benchmarking
 
 // Or via full namespace (bypasses facade)
 use Webpatser\Uuid\Uuid as DirectUuid;
