@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests;
 
+use Illuminate\Support\Str;
 use PHPUnit\Framework\TestCase;
 use Webpatser\LaravelUuid\UuidMacros;
-use Illuminate\Support\Str;
 
 class UuidMacrosTest extends TestCase
 {
@@ -16,36 +16,36 @@ class UuidMacrosTest extends TestCase
         UuidMacros::register();
     }
 
-    public function testStrFastUuidMacro(): void
+    public function test_str_fast_uuid_macro(): void
     {
         $uuid = Str::fastUuid();
-        
+
         $this->assertIsString($uuid);
         $this->assertEquals(36, strlen($uuid));
         $this->assertTrue(Str::fastIsUuid($uuid));
         $this->assertEquals(4, Str::uuidVersion($uuid));
     }
 
-    public function testStrFastOrderedUuidMacro(): void
+    public function test_str_fast_ordered_uuid_macro(): void
     {
         $uuid = Str::fastOrderedUuid();
-        
+
         $this->assertIsString($uuid);
         $this->assertEquals(36, strlen($uuid));
         $this->assertTrue(Str::fastIsUuid($uuid));
         $this->assertEquals(7, Str::uuidVersion($uuid));
     }
 
-    public function testStrFastIsUuidMacro(): void
+    public function test_str_fast_is_uuid_macro(): void
     {
         $validUuid = '550e8400-e29b-41d4-a716-446655440000';
         $invalidUuid = 'not-a-uuid';
-        
+
         $this->assertTrue(Str::fastIsUuid($validUuid));
         $this->assertFalse(Str::fastIsUuid($invalidUuid));
     }
 
-    public function testAdditionalUuidMacros(): void
+    public function test_additional_uuid_macros(): void
     {
         // Test time-based UUID
         $timeUuid = Str::timeBasedUuid();
@@ -68,15 +68,15 @@ class UuidMacrosTest extends TestCase
         $this->assertEquals($customUuid, $customUuid2);
     }
 
-    public function testNameBasedUuids(): void
+    public function test_name_based_uuids(): void
     {
         $name = 'example.com';
-        
+
         // Test MD5 name-based UUID
         $md5Uuid = Str::nameUuidMd5($name);
         $this->assertTrue(Str::isUuid($md5Uuid));
         $this->assertEquals(3, Str::uuidVersion($md5Uuid));
-        
+
         // Same name should produce same UUID
         $md5Uuid2 = Str::nameUuidMd5($name);
         $this->assertEquals($md5Uuid, $md5Uuid2);
@@ -85,44 +85,44 @@ class UuidMacrosTest extends TestCase
         $sha1Uuid = Str::nameUuidSha1($name);
         $this->assertTrue(Str::isUuid($sha1Uuid));
         $this->assertEquals(5, Str::uuidVersion($sha1Uuid));
-        
+
         // Same name should produce same UUID
         $sha1Uuid2 = Str::nameUuidSha1($name);
         $this->assertEquals($sha1Uuid, $sha1Uuid2);
     }
 
-    public function testNilUuidMacros(): void
+    public function test_nil_uuid_macros(): void
     {
         $nil = Str::nilUuid();
-        
+
         $this->assertEquals('00000000-0000-0000-0000-000000000000', $nil);
         $this->assertTrue(Str::isNilUuid($nil));
         $this->assertFalse(Str::isNilUuid(Str::fastUuid()));
     }
 
-    public function testUuidVersionMacro(): void
+    public function test_uuid_version_macro(): void
     {
         $this->assertEquals(4, Str::uuidVersion(Str::fastUuid()));
         $this->assertEquals(7, Str::uuidVersion(Str::fastOrderedUuid()));
         $this->assertNull(Str::uuidVersion('invalid-uuid'));
     }
 
-    public function testUuidTimestampMacro(): void
+    public function test_uuid_timestamp_macro(): void
     {
         $timeUuid = Str::timeBasedUuid();
         $orderedUuid = Str::fastOrderedUuid();
         $randomUuid = Str::fastUuid();
-        
+
         $this->assertIsFloat(Str::uuidTimestamp($timeUuid));
         $this->assertIsFloat(Str::uuidTimestamp($orderedUuid));
         $this->assertNull(Str::uuidTimestamp($randomUuid)); // V4 has no timestamp
         $this->assertNull(Str::uuidTimestamp('invalid-uuid'));
     }
 
-    public function testBenchmarkMacro(): void
+    public function test_benchmark_macro(): void
     {
         $result = Str::benchmarkUuid(100, 7);
-        
+
         $this->assertIsArray($result);
         $this->assertArrayHasKey('version', $result);
         $this->assertArrayHasKey('iterations', $result);
@@ -132,10 +132,10 @@ class UuidMacrosTest extends TestCase
         $this->assertGreaterThan(0, $result['uuids_per_second']);
     }
 
-    public function testOrderedUuidsAreSortable(): void
+    public function test_ordered_uuids_are_sortable(): void
     {
         $uuids = [];
-        
+
         // Generate multiple ordered UUIDs with small delays
         for ($i = 0; $i < 5; $i++) {
             if ($i > 0) {
@@ -143,10 +143,10 @@ class UuidMacrosTest extends TestCase
             }
             $uuids[] = Str::fastOrderedUuid();
         }
-        
+
         $sortedUuids = $uuids;
         sort($sortedUuids);
-        
+
         // V7 UUIDs should be naturally sortable
         $this->assertEquals($uuids, $sortedUuids);
     }

@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Webpatser\LaravelUuid;
 
-use Webpatser\Uuid\Uuid;
 use Illuminate\Support\Str;
+use Webpatser\Uuid\Uuid;
 
 /**
  * UUID Macros for Laravel's Str class
- * 
+ *
  * This class provides macros to replace Laravel's built-in UUID functions
  * with our high-performance webpatser/uuid library (15% faster than Ramsey).
- * 
+ *
  * These macros are automatically registered by the UuidServiceProvider,
  * so existing code using Str::uuid() and Str::orderedUuid() will automatically
  * benefit from the performance improvements without any code changes.
@@ -27,7 +27,7 @@ class UuidMacros
         // Note: Laravel already has uuid(), orderedUuid(), and isUuid() methods
         // Macros can't override existing methods, so we use alternative names
         // for our high-performance versions while keeping compatibility
-        
+
         // High-performance alternatives to Laravel's UUID methods
         Str::macro('fastUuid', function () {
             return (string) Uuid::v4();
@@ -42,7 +42,7 @@ class UuidMacros
         });
 
         // Add new macros for additional UUID versions
-        
+
         // Generate V1 time-based UUID
         Str::macro('timeBasedUuid', function () {
             return (string) Uuid::generate(1);
@@ -70,17 +70,19 @@ class UuidMacros
 
         // Get UUID version
         Str::macro('uuidVersion', function (string $uuid) {
-            if (!Uuid::validate($uuid)) {
+            if (! Uuid::validate($uuid)) {
                 return null;
             }
+
             return Uuid::import($uuid)->version;
         });
 
         // Get timestamp from time-based UUIDs
         Str::macro('uuidTimestamp', function (string $uuid) {
-            if (!Uuid::validate($uuid)) {
+            if (! Uuid::validate($uuid)) {
                 return null;
             }
+
             return Uuid::import($uuid)->time;
         });
 
@@ -108,17 +110,19 @@ class UuidMacros
 
         // Convert string UUID to binary format
         Str::macro('uuidToBinary', function (string $uuid) {
-            if (!Uuid::validate($uuid)) {
+            if (! Uuid::validate($uuid)) {
                 throw new \InvalidArgumentException("Invalid UUID format: {$uuid}");
             }
+
             return Uuid::import($uuid)->bytes;
         });
 
         // Convert binary UUID to string format
         Str::macro('binaryToUuid', function (string $binary) {
             if (strlen($binary) !== 16) {
-                throw new \InvalidArgumentException("Binary UUID must be exactly 16 bytes");
+                throw new \InvalidArgumentException('Binary UUID must be exactly 16 bytes');
             }
+
             return Uuid::import($binary)->string;
         });
 
@@ -129,6 +133,7 @@ class UuidMacros
             }
             try {
                 $uuid = Uuid::import($binary);
+
                 return Uuid::validate($uuid->string);
             } catch (\Exception) {
                 return false;
@@ -140,7 +145,7 @@ class UuidMacros
             return Uuid::generate(1)->bytes;
         });
 
-        // Generate binary reordered time UUID (V6) 
+        // Generate binary reordered time UUID (V6)
         Str::macro('binaryReorderedTimeUuid', function () {
             return Uuid::generate(6)->bytes;
         });
@@ -159,32 +164,34 @@ class UuidMacros
 
         // Export UUID to SQL Server uniqueidentifier format
         Str::macro('uuidToSqlServer', function (string $uuid) {
-            if (!Uuid::validate($uuid)) {
+            if (! Uuid::validate($uuid)) {
                 throw new \InvalidArgumentException("Invalid UUID format: {$uuid}");
             }
+
             return Uuid::import($uuid)->toSqlServer();
         });
 
         // Get SQL Server binary format for uniqueidentifier columns
         Str::macro('uuidToSqlServerBinary', function (string $uuid) {
-            if (!Uuid::validate($uuid)) {
+            if (! Uuid::validate($uuid)) {
                 throw new \InvalidArgumentException("Invalid UUID format: {$uuid}");
             }
+
             return Uuid::import($uuid)->toSqlServerBinary();
         });
 
         // Import SQL Server binary uniqueidentifier to standard UUID string
         Str::macro('sqlServerBinaryToUuid', function (string $binary) {
             if (strlen($binary) !== 16) {
-                throw new \InvalidArgumentException("SQL Server GUID binary must be exactly 16 bytes");
+                throw new \InvalidArgumentException('SQL Server GUID binary must be exactly 16 bytes');
             }
             // Reverse the endianness conversion
-            $correctedBytes = 
-                strrev(substr($binary, 0, 4)) .  // time-low: reverse 4 bytes
-                strrev(substr($binary, 4, 2)) .  // time-mid: reverse 2 bytes
-                strrev(substr($binary, 6, 2)) .  // time-hi: reverse 2 bytes
+            $correctedBytes =
+                strrev(substr($binary, 0, 4)).  // time-low: reverse 4 bytes
+                strrev(substr($binary, 4, 2)).  // time-mid: reverse 2 bytes
+                strrev(substr($binary, 6, 2)).  // time-hi: reverse 2 bytes
                 substr($binary, 8, 8);           // clock-seq + node: keep as-is
-            
+
             return Uuid::import($correctedBytes)->string;
         });
 

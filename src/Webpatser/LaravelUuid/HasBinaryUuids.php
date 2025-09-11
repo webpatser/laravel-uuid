@@ -9,23 +9,23 @@ use Webpatser\Uuid\Uuid;
 
 /**
  * High-performance HasBinaryUuids trait for binary UUID storage
- * 
+ *
  * This trait enables storing UUIDs as 16-byte binary data instead of 36-character strings,
  * providing significant database storage and performance benefits:
- * 
+ *
  * - 55% smaller storage (16 bytes vs 36 bytes)
  * - Faster database queries and indexing
  * - Better clustering for sequential UUIDs (V7)
  * - Reduced memory usage
- * 
+ *
  * Usage:
  * class User extends Model {
  *     use \Webpatser\LaravelUuid\HasBinaryUuids;
  * }
- * 
+ *
  * Migration:
  * $table->binary('id', 16)->primary();
- * 
+ *
  * Features:
  * - Automatic binary conversion on save/load
  * - Uses high-performance webpatser/uuid library
@@ -39,7 +39,7 @@ trait HasBinaryUuids
 
     /**
      * Generate a new UUID for the model
-     * 
+     *
      * Override this method to customize UUID generation:
      * - Return Uuid::v4() for random UUIDs
      * - Return Uuid::v7() for timestamp-ordered UUIDs (recommended for databases)
@@ -50,12 +50,13 @@ trait HasBinaryUuids
         // Use V7 UUIDs by default for optimal database performance
         // V7 UUIDs are naturally sortable and provide better database clustering
         $uuid = Uuid::v7();
+
         return $uuid->bytes; // Return binary data instead of string
     }
 
     /**
      * Determine if the given value is a valid UUID (string or binary)
-     * 
+     *
      * Uses our high-performance UUID validation for both formats
      */
     protected function isValidUniqueId(mixed $value): bool
@@ -65,12 +66,14 @@ trait HasBinaryUuids
             if (strlen($value) === 16) {
                 // Convert binary to string format for validation
                 $uuid = Uuid::import($value);
+
                 return Uuid::validate($uuid->string);
             }
+
             // Regular string UUID validation
             return Uuid::validate($value);
         }
-        
+
         return false;
     }
 
@@ -81,11 +84,11 @@ trait HasBinaryUuids
     {
         $column = $column ?? $this->getKeyName();
         $binaryUuid = $this->getAttribute($column);
-        
-        if (!$binaryUuid || strlen($binaryUuid) !== 16) {
+
+        if (! $binaryUuid || strlen($binaryUuid) !== 16) {
             return '';
         }
-        
+
         return Uuid::import($binaryUuid)->string;
     }
 
@@ -95,7 +98,7 @@ trait HasBinaryUuids
     public function setUuidFromString(string $uuid, ?string $column = null): void
     {
         $column = $column ?? $this->getKeyName();
-        
+
         if (Uuid::validate($uuid)) {
             $this->setAttribute($column, Uuid::import($uuid)->bytes);
         }
@@ -107,11 +110,11 @@ trait HasBinaryUuids
     public function getRouteKey(): string
     {
         $key = $this->getAttribute($this->getRouteKeyName());
-        
+
         if ($key && strlen($key) === 16) {
             return Uuid::import($key)->string;
         }
-        
+
         return $key ?? '';
     }
 
@@ -124,7 +127,7 @@ trait HasBinaryUuids
         if (is_string($value) && Uuid::validate($value)) {
             $value = Uuid::import($value)->bytes;
         }
-        
+
         return parent::resolveRouteBindingQuery($query, $value, $field);
     }
 
@@ -158,21 +161,21 @@ trait HasBinaryUuids
     public function getUuidVersion(): ?int
     {
         $key = $this->getKey();
-        
-        if (!$key) {
+
+        if (! $key) {
             return null;
         }
-        
+
         // Handle binary format
         if (strlen($key) === 16) {
             return Uuid::import($key)->version;
         }
-        
+
         // Handle string format
         if (Uuid::validate($key)) {
             return Uuid::import($key)->version;
         }
-        
+
         return null;
     }
 
@@ -190,14 +193,14 @@ trait HasBinaryUuids
     public function getUuidTimestamp(): ?float
     {
         $key = $this->getKey();
-        
-        if (!$key) {
+
+        if (! $key) {
             return null;
         }
-        
-        $uuid = strlen($key) === 16 ? Uuid::import($key) : 
+
+        $uuid = strlen($key) === 16 ? Uuid::import($key) :
                 (Uuid::validate($key) ? Uuid::import($key) : null);
-        
+
         return $uuid?->time;
     }
 

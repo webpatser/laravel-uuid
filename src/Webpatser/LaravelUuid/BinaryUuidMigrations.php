@@ -9,21 +9,21 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Binary UUID Migration Helpers
- * 
+ *
  * Provides convenient methods for creating binary UUID columns in Laravel migrations.
  * Binary UUIDs provide 55% storage savings and better database performance.
- * 
+ *
  * Usage in migrations:
- * 
+ *
  * use Webpatser\LaravelUuid\BinaryUuidMigrations;
- * 
+ *
  * Schema::create('users', function (Blueprint $table) {
  *     BinaryUuidMigrations::addBinaryUuidPrimary($table);
  *     BinaryUuidMigrations::addBinaryUuidColumn($table, 'parent_id', true);
  *     $table->string('name');
  *     $table->timestamps();
  * });
- * 
+ *
  * // Convert existing string UUID table to binary
  * BinaryUuidMigrations::convertStringToBinary('users', 'id');
  */
@@ -31,36 +31,34 @@ class BinaryUuidMigrations
 {
     /**
      * Add a binary UUID primary key column (database-optimized)
-     * 
-     * @param Blueprint $table
-     * @param string $column Column name (default: 'id')
-     * @return void
+     *
+     * @param  string  $column  Column name (default: 'id')
      */
     public static function addBinaryUuidPrimary(Blueprint $table, string $column = 'id'): void
     {
         $driver = self::getDatabaseDriver();
-        
+
         switch ($driver) {
             case 'mysql':
             case 'mariadb':
                 $table->binary($column, 16)->primary();
                 break;
-                
+
             case 'pgsql':
                 // PostgreSQL has native UUID type, but we use bytea for binary storage
                 $table->addColumn('bytea', $column)->primary();
                 break;
-                
+
             case 'sqlite':
                 // SQLite stores everything as text, but we can still use BLOB
                 $table->binary($column, 16)->primary();
                 break;
-                
+
             case 'sqlsrv':
                 // SQL Server: Use uniqueidentifier for native GUID support
                 $table->addColumn('uniqueidentifier', $column)->primary();
                 break;
-                
+
             default:
                 // Fallback to standard binary
                 $table->binary($column, 16)->primary();
@@ -69,47 +67,45 @@ class BinaryUuidMigrations
 
     /**
      * Add a binary UUID column (database-optimized)
-     * 
-     * @param Blueprint $table
-     * @param string $column Column name
-     * @param bool $nullable Whether the column should be nullable
-     * @param bool $index Whether to add an index on the column
-     * @return void
+     *
+     * @param  string  $column  Column name
+     * @param  bool  $nullable  Whether the column should be nullable
+     * @param  bool  $index  Whether to add an index on the column
      */
     public static function addBinaryUuidColumn(
-        Blueprint $table, 
-        string $column, 
-        bool $nullable = false, 
+        Blueprint $table,
+        string $column,
+        bool $nullable = false,
         bool $index = false
     ): void {
         $driver = self::getDatabaseDriver();
-        
+
         switch ($driver) {
             case 'mysql':
             case 'mariadb':
                 $col = $table->binary($column, 16);
                 break;
-                
+
             case 'pgsql':
                 $col = $table->addColumn('bytea', $column);
                 break;
-                
+
             case 'sqlite':
                 $col = $table->binary($column, 16);
                 break;
-                
+
             case 'sqlsrv':
                 $col = $table->addColumn('uniqueidentifier', $column);
                 break;
-                
+
             default:
                 $col = $table->binary($column, 16);
         }
-        
+
         if ($nullable) {
             $col->nullable();
         }
-        
+
         if ($index) {
             $col->index();
         }
@@ -117,12 +113,10 @@ class BinaryUuidMigrations
 
     /**
      * Add binary UUID foreign key column (database-optimized)
-     * 
-     * @param Blueprint $table
-     * @param string $column Column name
-     * @param string $references Referenced table.column (e.g., 'users.id')
-     * @param bool $nullable Whether the foreign key should be nullable
-     * @return void
+     *
+     * @param  string  $column  Column name
+     * @param  string  $references  Referenced table.column (e.g., 'users.id')
+     * @param  bool  $nullable  Whether the foreign key should be nullable
      */
     public static function addBinaryUuidForeign(
         Blueprint $table,
@@ -131,33 +125,33 @@ class BinaryUuidMigrations
         bool $nullable = false
     ): void {
         $driver = self::getDatabaseDriver();
-        
+
         switch ($driver) {
             case 'mysql':
             case 'mariadb':
                 $col = $table->binary($column, 16);
                 break;
-                
+
             case 'pgsql':
                 $col = $table->addColumn('bytea', $column);
                 break;
-                
+
             case 'sqlite':
                 $col = $table->binary($column, 16);
                 break;
-                
+
             case 'sqlsrv':
                 $col = $table->addColumn('uniqueidentifier', $column);
                 break;
-                
+
             default:
                 $col = $table->binary($column, 16);
         }
-        
+
         if ($nullable) {
             $col->nullable();
         }
-        
+
         // Parse table.column reference
         [$referencedTable, $referencedColumn] = explode('.', $references, 2);
         $col->foreign($column)->references($referencedColumn)->on($referencedTable);
@@ -165,8 +159,6 @@ class BinaryUuidMigrations
 
     /**
      * Get the current database driver
-     * 
-     * @return string
      */
     protected static function getDatabaseDriver(): string
     {
@@ -181,39 +173,39 @@ class BinaryUuidMigrations
     /**
      * Convert existing string UUID column to binary (database-specific)
      * WARNING: This will lose data if not handled properly!
-     * 
+     *
      * Recommended process:
      * 1. Add new binary column
-     * 2. Populate binary column from string column 
+     * 2. Populate binary column from string column
      * 3. Update application code
      * 4. Drop string column
      * 5. Rename binary column
-     * 
-     * @param string $table Table name
-     * @param string $column Column name to convert
-     * @param string|null $driver Database driver (auto-detected if null)
+     *
+     * @param  string  $table  Table name
+     * @param  string  $column  Column name to convert
+     * @param  string|null  $driver  Database driver (auto-detected if null)
      * @return string Raw SQL for manual execution
      */
     public static function getConversionSql(string $table, string $column, ?string $driver = null): string
     {
         $driver = $driver ?? self::getDatabaseDriver();
-        
+
         switch ($driver) {
             case 'mysql':
             case 'mariadb':
                 return self::getMysqlConversionSql($table, $column);
-                
+
             case 'pgsql':
                 return self::getPostgresqlConversionSql($table, $column);
-                
+
             case 'sqlite':
                 return self::getSqliteConversionSql($table, $column);
-                
+
             case 'sqlsrv':
                 return self::getSqlServerConversionSql($table, $column);
-                
+
             default:
-                return self::getMysqlConversionSql($table, $column) . "\n\n-- Note: This is MySQL syntax. Adjust for your database.";
+                return self::getMysqlConversionSql($table, $column)."\n\n-- Note: This is MySQL syntax. Adjust for your database.";
         }
     }
 
@@ -338,14 +330,14 @@ AND [{$column}_guid] IS NULL;
 
     /**
      * Get database-specific information about binary UUID implementation
-     * 
-     * @param string|null $driver Database driver (auto-detected if null)
+     *
+     * @param  string|null  $driver  Database driver (auto-detected if null)
      * @return array Database information
      */
     public static function getDatabaseInfo(?string $driver = null): array
     {
         $driver = $driver ?? self::getDatabaseDriver();
-        
+
         switch ($driver) {
             case 'mysql':
             case 'mariadb':
@@ -357,7 +349,7 @@ AND [{$column}_guid] IS NULL;
                     'reverse_function' => 'INSERT(INSERT(INSERT(INSERT(HEX(binary_uuid), 9, 0, "-"), 14, 0, "-"), 19, 0, "-"), 24, 0, "-")',
                     'supports_native_uuid' => false,
                 ];
-                
+
             case 'pgsql':
                 return [
                     'driver' => $driver,
@@ -366,9 +358,9 @@ AND [{$column}_guid] IS NULL;
                     'conversion_function' => 'decode(replace(uuid, "-", ""), "hex")',
                     'reverse_function' => 'encode(binary_uuid, "hex") with dashes inserted',
                     'supports_native_uuid' => true,
-                    'note' => 'PostgreSQL has native UUID type, but bytea is used for binary storage'
+                    'note' => 'PostgreSQL has native UUID type, but bytea is used for binary storage',
                 ];
-                
+
             case 'sqlite':
                 return [
                     'driver' => $driver,
@@ -378,7 +370,7 @@ AND [{$column}_guid] IS NULL;
                     'reverse_function' => 'hex(binary_uuid) with dashes inserted',
                     'supports_native_uuid' => false,
                 ];
-                
+
             case 'sqlsrv':
                 return [
                     'driver' => $driver,
@@ -388,9 +380,9 @@ AND [{$column}_guid] IS NULL;
                     'reverse_function' => 'CAST(guid AS nvarchar(36))',
                     'supports_native_uuid' => true,
                     'supports_endianness_conversion' => true,
-                    'note' => 'SQL Server handles GUID endianness automatically. Use Laravel macros for cross-database compatibility.'
+                    'note' => 'SQL Server handles GUID endianness automatically. Use Laravel macros for cross-database compatibility.',
                 ];
-                
+
             default:
                 return [
                     'driver' => $driver,
@@ -405,9 +397,9 @@ AND [{$column}_guid] IS NULL;
 
     /**
      * Get a complete migration stub for binary UUIDs
-     * 
-     * @param string $table Table name
-     * @param array $columns Additional binary UUID columns
+     *
+     * @param  string  $table  Table name
+     * @param  array  $columns  Additional binary UUID columns
      * @return string Complete migration file content
      */
     public static function getMigrationStub(string $table, array $columns = []): string
@@ -421,7 +413,7 @@ AND [{$column}_guid] IS NULL;
 
         $dbInfo = self::getDatabaseInfo();
         $dbComment = "// {$dbInfo['driver']}: Uses {$dbInfo['column_type']} ({$dbInfo['storage_bytes']} bytes)";
-        
+
         return "<?php
 
 use Illuminate\\Database\\Migrations\\Migration;

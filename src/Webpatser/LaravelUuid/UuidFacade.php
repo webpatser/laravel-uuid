@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Facade;
 
 /**
  * Laravel Facade for UUID functionality
- * 
+ *
  * @method static \Webpatser\Uuid\Uuid generate(int $ver = 1, mixed $node = null, ?string $ns = null)
  * @method static \Webpatser\Uuid\Uuid v4()
  * @method static \Webpatser\Uuid\Uuid v7()
@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Webpatser\Uuid\Uuid nil()
  * @method static bool isNilUuid(string|\Webpatser\Uuid\Uuid $uuid)
  * @method static array benchmark(int $iterations = 10000, int $version = 4)
- * 
+ *
  * @see \Webpatser\Uuid\Uuid
  */
 class UuidFacade extends Facade

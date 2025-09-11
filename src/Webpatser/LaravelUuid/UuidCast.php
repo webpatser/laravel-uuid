@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Webpatser\LaravelUuid;
 
-use Webpatser\Uuid\Uuid;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
+use Webpatser\Uuid\Uuid;
 
 /**
  * Laravel Eloquent cast for UUID columns
- * 
+ *
  * Usage in your Eloquent models:
  * protected $casts = [
  *     'id' => UuidCast::class,

@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Webpatser\LaravelUuid;
 
-use Webpatser\Uuid\Uuid;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
+use Webpatser\Uuid\Uuid;
 
 class UuidServiceProvider extends ServiceProvider
 {

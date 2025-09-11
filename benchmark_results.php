@@ -1,15 +1,15 @@
 <?php
 
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__.'/vendor/autoload.php';
 
-use Webpatser\Uuid\Uuid as WebpatserUuid;
 use Ramsey\Uuid\Uuid as RamseyUuid;
+use Webpatser\Uuid\Uuid as WebpatserUuid;
 
 echo "🏆 COMPREHENSIVE UUID PERFORMANCE BENCHMARK\n";
 echo "===========================================\n\n";
-echo "PHP Version: " . PHP_VERSION . "\n";
+echo 'PHP Version: '.PHP_VERSION."\n";
 echo "Testing with 50,000 iterations for accurate results\n";
-echo "Date: " . date('Y-m-d H:i:s') . "\n\n";
+echo 'Date: '.date('Y-m-d H:i:s')."\n\n";
 
 $iterations = 50000;
 
@@ -17,8 +17,8 @@ $iterations = 50000;
 echo "1️⃣ Testing Webpatser UUID v5.1 (PHP 8.2+ optimized)\n";
 $v51_v4 = WebpatserUuid::benchmark($iterations, 4);
 $v51_v7 = WebpatserUuid::benchmark($iterations, 7);
-echo "   V4: " . number_format($v51_v4['uuids_per_second']) . " UUIDs/sec\n";
-echo "   V7: " . number_format($v51_v7['uuids_per_second']) . " UUIDs/sec\n\n";
+echo '   V4: '.number_format($v51_v4['uuids_per_second'])." UUIDs/sec\n";
+echo '   V7: '.number_format($v51_v7['uuids_per_second'])." UUIDs/sec\n\n";
 
 // Ramsey UUID results
 echo "2️⃣ Testing Ramsey UUID v4.9\n";
@@ -38,16 +38,16 @@ $end = hrtime(true);
 $ramsey_v7_time = ($end - $start) / 1_000_000;
 $ramsey_v7_speed = round($iterations / ($ramsey_v7_time / 1000));
 
-echo "   V4: " . number_format($ramsey_v4_speed) . " UUIDs/sec\n";
-echo "   V7: " . number_format($ramsey_v7_speed) . " UUIDs/sec\n\n";
+echo '   V4: '.number_format($ramsey_v4_speed)." UUIDs/sec\n";
+echo '   V7: '.number_format($ramsey_v7_speed)." UUIDs/sec\n\n";
 
 // v5.0 actual results (from previous test)
 $v50_v4_speed = 739249;
 $v50_v7_speed = 537020;
 
 echo "3️⃣ Webpatser UUID v5.0 (PHP 8.0+ baseline - tested earlier)\n";
-echo "   V4: " . number_format($v50_v4_speed) . " UUIDs/sec\n";
-echo "   V7: " . number_format($v50_v7_speed) . " UUIDs/sec\n\n";
+echo '   V4: '.number_format($v50_v4_speed)." UUIDs/sec\n";
+echo '   V7: '.number_format($v50_v7_speed)." UUIDs/sec\n\n";
 
 // Results summary
 echo "📊 COMPREHENSIVE BENCHMARK RESULTS\n";
@@ -60,13 +60,13 @@ $results = [
 ];
 
 // Display results table
-printf("%-25s | %-15s | %-15s\n", "Package", "V4 (Random)", "V7 (Unix TS)");
-echo str_repeat("-", 60) . "\n";
+printf("%-25s | %-15s | %-15s\n", 'Package', 'V4 (Random)', 'V7 (Unix TS)');
+echo str_repeat('-', 60)."\n";
 
 foreach ($results as $package => $speeds) {
-    printf("%-25s | %13s/s | %13s/s\n", 
-        $package, 
-        number_format($speeds['v4']), 
+    printf("%-25s | %13s/s | %13s/s\n",
+        $package,
+        number_format($speeds['v4']),
         number_format($speeds['v7'])
     );
 }
@@ -103,7 +103,7 @@ if ($v51_vs_v50_v4 > 0) {
     echo sprintf("⚠️  v5.1 is %.1f%% slower than v5.0\n", abs($v51_vs_v50_v4));
 }
 
-echo "\n" . str_repeat("-", 50) . "\n\n";
+echo "\n".str_repeat('-', 50)."\n\n";
 
 // V7 Comparisons
 echo "UUID Version 7 (Unix Timestamp) Performance:\n";
@@ -166,13 +166,13 @@ echo "============================\n\n";
 
 echo "**PHP 8.2+ Optimizations in v5.1:**\n";
 echo "• ✅ Random\\Randomizer class - Better entropy\n";
-echo "• ✅ Readonly properties - Memory optimization\n";  
+echo "• ✅ Readonly properties - Memory optimization\n";
 echo "• ✅ Sequence counters for V7 - Monotonic ordering\n";
 echo "• ✅ hrtime() precision - Nanosecond accuracy\n";
 
 echo "\n**Trade-offs:**\n";
-echo "• V4: Pure speed optimization (~" . number_format(abs($v51_vs_v50_v4)) . "% difference)\n";
-echo "• V7: Correctness over speed (~" . number_format(abs($v51_vs_v50_v7)) . "% slower for monotonic ordering)\n";
+echo '• V4: Pure speed optimization (~'.number_format(abs($v51_vs_v50_v4))."% difference)\n";
+echo '• V7: Correctness over speed (~'.number_format(abs($v51_vs_v50_v7))."% slower for monotonic ordering)\n";
 
 echo "\n🎉 **RECOMMENDATION:**\n";
 echo "=====================\n";
@@ -185,7 +185,7 @@ echo "   ✅ Modern PHP 8.2+ optimizations\n";
 if ($overall_improvement_v51 > 15) {
     echo "\n🚀 **EXCELLENT**: Over 15% performance improvement vs Ramsey UUID!\n";
 } elseif ($overall_improvement_v51 > 5) {
-    echo "\n✅ **GOOD**: Solid " . round($overall_improvement_v51) . "% performance improvement vs Ramsey UUID\n";
+    echo "\n✅ **GOOD**: Solid ".round($overall_improvement_v51)."% performance improvement vs Ramsey UUID\n";
 }
 
-echo "\n📈 Generated " . number_format($v51_v4['uuids_per_second'] + $v51_v7['uuids_per_second']) . " total UUIDs/sec in v5.1 testing!\n";
+echo "\n📈 Generated ".number_format($v51_v4['uuids_per_second'] + $v51_v7['uuids_per_second'])." total UUIDs/sec in v5.1 testing!\n";

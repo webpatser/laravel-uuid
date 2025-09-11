@@ -7,7 +7,6 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
-use Tests\TestCase;
 use Webpatser\LaravelUuid\BinaryUuidCast;
 use Webpatser\LaravelUuid\BinaryUuidMigrations;
 use Webpatser\LaravelUuid\HasBinaryUuids;
@@ -19,8 +18,9 @@ class BinaryUuidTestModel extends Model
     use HasBinaryUuids;
 
     protected $table = 'binary_uuid_test_models';
+
     protected $fillable = ['name', 'parent_id'];
-    
+
     protected $casts = [
         'id' => BinaryUuidCast::class,
         'parent_id' => BinaryUuidCast::class,
@@ -36,7 +36,7 @@ class BinaryUuidTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create test table with binary UUIDs
         Schema::create('binary_uuid_test_models', function (Blueprint $table) {
             BinaryUuidMigrations::addBinaryUuidPrimary($table);
@@ -77,10 +77,10 @@ class BinaryUuidTest extends TestCase
 
         // Check that ID was generated as 16-byte binary
         $this->assertEquals(16, strlen($model->getRawOriginal('id')));
-        
+
         // Check that the cast returns UUID object
         $this->assertInstanceOf(Uuid::class, $model->id);
-        
+
         // Check string conversion
         $this->assertEquals(36, strlen($model->getUuidAsString()));
         $this->assertTrue(Str::fastIsUuid($model->getUuidAsString()));
@@ -89,7 +89,7 @@ class BinaryUuidTest extends TestCase
     public function test_binary_uuid_cast(): void
     {
         $model = new BinaryUuidTestModel(['name' => 'Test']);
-        
+
         // Test setting UUID from string
         $stringUuid = Str::fastUuid();
         $model->parent_id = $stringUuid;
@@ -97,7 +97,7 @@ class BinaryUuidTest extends TestCase
 
         // Verify it was stored as binary
         $this->assertEquals(16, strlen($model->getRawOriginal('parent_id')));
-        
+
         // Verify it can be retrieved as UUID object
         $this->assertInstanceOf(Uuid::class, $model->parent_id);
         $this->assertEquals($stringUuid, $model->parent_id->string);
@@ -116,7 +116,7 @@ class BinaryUuidTest extends TestCase
         // Test route binding query
         $query = BinaryUuidTestModel::query();
         $boundQuery = $model->resolveRouteBindingQuery($query, $routeKey);
-        
+
         $found = $boundQuery->first();
         $this->assertNotNull($found);
         $this->assertEquals($model->name, $found->name);
@@ -125,7 +125,7 @@ class BinaryUuidTest extends TestCase
     public function test_binary_uuid_versions(): void
     {
         $model = new BinaryUuidTestModel(['name' => 'Test']);
-        
+
         // Test V7 (default)
         $model->save();
         $this->assertEquals(7, $model->getUuidVersion());
@@ -136,7 +136,7 @@ class BinaryUuidTest extends TestCase
         $v4Model = new BinaryUuidTestModel(['name' => 'V4 Test']);
         $v4Model->id = Str::fastBinaryUuid(); // V4 binary
         $v4Model->save();
-        
+
         $this->assertEquals(4, $v4Model->getUuidVersion());
         $this->assertFalse($v4Model->usesOrderedUuids());
         $this->assertNull($v4Model->getUuidTimestamp()); // V4 has no timestamp
@@ -184,7 +184,7 @@ class BinaryUuidTest extends TestCase
     {
         // Create models with both string and binary UUIDs for comparison
         $models = [];
-        
+
         for ($i = 0; $i < 10; $i++) {
             $model = new BinaryUuidTestModel(['name' => "Test {$i}"]);
             $model->save();
@@ -220,8 +220,8 @@ class BinaryUuidTest extends TestCase
 
     public function test_binary_uuid_cast_error_handling(): void
     {
-        $cast = new BinaryUuidCast();
-        $model = new BinaryUuidTestModel();
+        $cast = new BinaryUuidCast;
+        $model = new BinaryUuidTestModel;
 
         // Test invalid input for set method
         $this->expectException(\InvalidArgumentException::class);
@@ -236,7 +236,7 @@ class BinaryUuidTest extends TestCase
         // Test JSON serialization
         $json = $model->toJson();
         $decoded = json_decode($json, true);
-        
+
         // Should serialize to string format for JSON
         $this->assertEquals(36, strlen($decoded['id']));
         $this->assertTrue(Str::fastIsUuid($decoded['id']));
