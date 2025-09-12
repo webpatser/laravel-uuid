@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.2.0] - 2025-09-12
+
+### Changed
+- **Directory Structure Refactoring**: Modernized PSR-4 autoloading structure
+  - Moved all classes from `src/Webpatser/LaravelUuid/` directly to `src/`
+  - Simplified autoload mapping in `composer.json` to follow Laravel package conventions
+  - Eliminated redundant nested directory structure while maintaining namespace consistency
+
+### Removed
+- Cleaned up development artifacts: `benchmark_results.php`, `.travis.yml`, and `.phpunit.cache/`
+- Added `.phpunit.cache/` to `.gitignore` for cleaner repository maintenance
+
 ## [6.1.0] - 2025-09-11
 
 ### Added

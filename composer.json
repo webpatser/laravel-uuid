@@ -31,7 +31,7 @@
     },
 	"autoload" : {
 		"psr-4" : {
-			"Webpatser\\LaravelUuid\\": "src/Webpatser/LaravelUuid/"
+			"Webpatser\\LaravelUuid\\": "src/"
 		}
 	},
 	"autoload-dev": {
