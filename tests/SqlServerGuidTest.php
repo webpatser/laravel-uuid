@@ -95,3 +95,11 @@ it('throws on invalid uuid for sql server conversion', function () {
 it('throws on invalid binary length', function () {
     Str::sqlServerBinaryToUuid('too-short');
 })->throws(InvalidArgumentException::class, 'SQL Server GUID binary must be exactly 16 bytes');
+
+it('validates sql server guid strings via the macro', function () {
+    expect(Str::isSqlServerGuid('825B076B-44EC-E511-80DC-00155D0ABC54'))->toBeTrue()
+        ->and(Str::isSqlServerGuid('6B075B82-EC44-11E5-80DC-00155D0ABC54'))->toBeTrue()
+        ->and(Str::isSqlServerGuid('not-a-guid'))->toBeFalse()
+        ->and(Str::isSqlServerGuid('zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz'))->toBeFalse()
+        ->and(Str::isSqlServerGuid(''))->toBeFalse();
+});

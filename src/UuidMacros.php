@@ -195,9 +195,12 @@ class UuidMacros
             return Uuid::import($correctedBytes)->string;
         });
 
-        // Check if GUID appears to be in SQL Server format (heuristic)
+        // Check whether a string is a well-formed GUID. SQL Server's
+        // uniqueidentifier uses the same 8-4-4-4-12 hex text format as a
+        // standard UUID (only the stored binary byte order differs), so a
+        // valid UUID string is a valid SQL Server GUID string.
         Str::macro('isSqlServerGuid', function (string $guid) {
-            return Uuid::isSqlServerFormat($guid);
+            return Uuid::validate($guid);
         });
     }
 }
