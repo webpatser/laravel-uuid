@@ -11,7 +11,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: PHP 8.5
+    name: PHP 8.6
 
     steps:
       - name: Checkout
@@ -20,7 +20,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.5'
+          php-version: '8.6'
           coverage: none
           tools: composer:v2
 

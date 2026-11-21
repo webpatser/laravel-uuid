@@ -14,13 +14,13 @@
 		"MIT"
 	],
 	"require" : {
-		"php" : "^8.5",
-		"webpatser/uuid": "^2.0|dev-main",
+		"php" : "^8.6",
+		"webpatser/uuid": "^3.0",
 		"illuminate/support": "^13.0"
 	},
     "require-dev" : {
 		"fakerphp/faker": "^1.24",
-		"pestphp/pest": "^4.0",
+		"pestphp/pest": "^5.0",
 		"illuminate/database": "^13.0"
     },
 	"autoload" : {

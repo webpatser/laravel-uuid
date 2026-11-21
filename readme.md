@@ -13,7 +13,11 @@ Laravel package for generating and working with UUIDs. Automatic UUID model keys
 composer require webpatser/laravel-uuid
 ```
 
-**Requirements:** PHP 8.5+, Laravel 13.x
+**Requirements:** PHP 8.6+, Laravel 13.x
+
+## PHP version policy
+
+This package supports only the latest stable PHP release. When a new PHP version is released, the next release of this package requires it and support for the previous PHP version ends. Currently: PHP 8.6.
 
 ## Quick Start
 
