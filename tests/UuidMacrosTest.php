@@ -108,6 +108,49 @@ it('generates sortable ordered uuids', function () {
     expect($uuids)->toBe($sortedUuids);
 });
 
+it('generates reordered time uuids that sort by creation time', function () {
+    $uuids = [];
+
+    for ($i = 0; $i < 5; $i++) {
+        if ($i > 0) {
+            // 5ms is far above the 100ns timestamp resolution
+            usleep(5000);
+        }
+        $uuids[] = Str::reorderedTimeUuid();
+    }
+
+    $sortedUuids = $uuids;
+    sort($sortedUuids, SORT_STRING);
+
+    expect($uuids)->each(fn ($uuid) => $uuid->toBeString()->toHaveLength(36))
+        ->and(array_unique($uuids))->toHaveCount(5)
+        ->and($uuids)->toBe($sortedUuids);
+});
+
+it('returns the current time for a fresh reordered time uuid', function () {
+    $before = microtime(true);
+    $timestamp = Str::uuidTimestamp(Str::reorderedTimeUuid());
+    $after = microtime(true);
+
+    expect($timestamp)->toBeFloat()
+        ->and($timestamp)->toBeGreaterThanOrEqual($before - 1)
+        ->and($timestamp)->toBeLessThanOrEqual($after + 1);
+});
+
+it('puts the high 32 timestamp bits first in reordered time uuids (RFC 9562)', function () {
+    // Same arithmetic as Uuid::mintTimeV6(), so float rounding cannot push the value outside the bounds
+    $ticks = fn (float $t): int => (int) ($t * 10000000 + 0x01B21DD213814000) >> 28;
+
+    $before = microtime(true);
+    $uuid = Str::reorderedTimeUuid();
+    $after = microtime(true);
+
+    $high = hexdec(substr($uuid, 0, 8));
+
+    expect($high)->toBeGreaterThanOrEqual($ticks($before))
+        ->toBeLessThanOrEqual($ticks($after));
+});
+
 it('throws on invalid uuid string for uuidToBinary', function () {
     Str::uuidToBinary('not-a-valid-uuid');
 })->throws(InvalidArgumentException::class, 'Invalid UUID format');
